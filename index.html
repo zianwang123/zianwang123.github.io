@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andy Zian Wang | Quantitative Finance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        quant: {
+                            dark: '#0B1120',   /* Deep Navy */
+                            light: '#1e293b',
+                            accent: '#0ea5e9', /* Sky Blue */
+                            text: '#cbd5e1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B1120; color: #cbd5e1; font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tech-pill {
+            background: rgba(14, 165, 233, 0.1);
+            color: #7dd3fc;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-quant-accent selection:text-quant-dark">
+
+    <nav class="fixed w-full z-50 top-0 start-0 border-b border-gray-800 bg-quant-dark/90 backdrop-blur-md">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <span class="self-center text-xl font-bold whitespace-nowrap text-white">AZW<span class="text-quant-accent">.</span></span>
+            <div class="w-full md:block md:w-auto">
+                <ul class="font-medium flex p-4 md:p-0 mt-4 md:flex-row md:space-x-8 md:mt-0">
+                    <li><a href="#about" class="block py-2 px-3 text-white hover:text-quant-accent transition">About</a></li>
+                    <li><a href="#education" class="block py-2 px-3 text-quant-text hover:text-quant-accent transition">Education</a></li>
+                    <li><a href="#projects" class="block py-2 px-3 text-quant-text hover:text-quant-accent transition">Projects</a></li>
+                    <li><a href="#contact" class="block py-2 px-3 text-quant-accent border border-quant-accent rounded hover:bg-quant-accent hover:text-quant-dark transition px-4">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="about" class="min-h-screen flex items-center justify-center pt-16">
+        <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16 lg:px-12">
+            <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-white md:text-6xl lg:text-7xl">
+                Andy Zian Wang
+            </h1>
+            <p class="mb-8 text-lg font-normal text-gray-400 lg:text-xl sm:px-16 xl:px-48">
+                Aspiring Quantitative Researcher & Financial Engineer.<br>
+                Leveraging <span class="text-quant-accent">[Your Top Skill, e.g., Stochastic Calculus]</span> and <span class="text-quant-accent">[Your Coding Lang, e.g., C++]</span> to solve market problems.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 mb-8 opacity-80">
+                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">Python (Pandas/NumPy)</span>
+                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">C++</span>
+                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">Stochastic Calculus</span>
+                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">Econometrics</span>
+            </div>
+
+            <div class="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
+                <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 transition">
+                    <i class="fab fa-linkedin mr-2"></i> LinkedIn
+                </a>
+                <a href="#" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 bg-white transition">
+                    <i class="fas fa-file-alt mr-2"></i> Resume
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="education" class="py-16 bg-gray-900/50">
+        <div class="max-w-screen-xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-white mb-8 border-l-4 border-quant-accent pl-4">Education</h2>
+            <div class="glass-card p-8 rounded-xl">
+                <div class="flex justify-between items-start flex-wrap gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">[Your University Name]</h3>
+                        <p class="text-quant-accent text-lg">Bachelor of Science in Quantitative Finance / Math / CS</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-gray-300">Graduation: [Month Year]</p>
+                        <p class="text-gray-400 font-mono text-sm">GPA: [X.X]/4.0</p>
+                    </div>
+                </div>
+                <hr class="border-gray-700 my-6">
+                <div>
+                    <h4 class="font-bold text-gray-300 mb-3">Relevant Coursework</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tech-pill">Real Analysis</span>
+                        <span class="tech-pill">Linear Algebra</span>
+                        <span class="tech-pill">Derivatives Pricing</span>
+                        <span class="tech-pill">Time Series Analysis</span>
+                        <span class="tech-pill">Data Structures & Algo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="py-16">
+        <div class="max-w-screen-xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-white mb-8 border-l-4 border-quant-accent pl-4">Technical Projects</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-quant-accent transition duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <i class="fas fa-chart-line text-2xl text-quant-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">[Project 1 Name]</h3>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Example: "Options Pricing Model." Implemented Black-Scholes and Heston models in C++ to price European options. Calibrated volatility surface using market data.
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="tech-pill">C++</span>
+                        <span class="tech-pill">Monte Carlo</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-quant-accent transition duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <i class="fas fa-database text-2xl text-quant-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">[Project 2 Name]</h3>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Example: "Statistical Arbitrage Strategy." Built a pairs trading strategy in Python using cointegration tests on S&P 500 constituents. Achieved Sharpe Ratio of 1.2 in backtest.
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="tech-pill">Python</span>
+                        <span class="tech-pill">Pandas</span>
+                        <span class="tech-pill">Statsmodels</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-quant-accent transition duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <i class="fas fa-microscope text-2xl text-quant-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">[Project 3 Name]</h3>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Example: "Portfolio Optimization." Implemented Markowitz Mean-Variance optimization with constraints. Explored impact of shrinkage estimators on covariance matrices.
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="tech-pill">Linear Algebra</span>
+                        <span class="tech-pill">Optimization</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="bg-gray-900 border-t border-gray-800 mt-20">
+        <div class="w-full max-w-screen-xl mx-auto p-4 py-8">
+            <div class="sm:flex sm:items-center sm:justify-between">
+                <span class="text-sm text-gray-500">© 2025 Andy Zian Wang.</span>
+                <div class="flex mt-4 sm:justify-center sm:mt-0 space-x-6 text-gray-400">
+                    <a href="mailto:your.email@university.edu" class="hover:text-white transition">
+                        <i class="fas fa-envelope"></i> Email Me
+                    </a>
+                    <a href="https://www.linkedin.com/in/andyzianwang" class="hover:text-white transition">
+                        <i class="fab fa-linkedin"></i> LinkedIn
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
