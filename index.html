@@ -43,7 +43,6 @@
       overflow-x: hidden;
     }
 
-    /* WebGL background */
     #bg{
       position: fixed; inset: 0;
       width: 100%; height: 100%;
@@ -51,7 +50,6 @@
       background: transparent;
     }
 
-    /* vignette + subtle scanlines (wall-street terminal vibe) */
     .vignette{
       position: fixed; inset: 0;
       z-index: 1; pointer-events: none;
@@ -74,7 +72,6 @@
       mix-blend-mode: overlay;
     }
 
-    /* content */
     .wrap{
       position: relative; z-index: 10;
       max-width: 1120px;
@@ -85,7 +82,6 @@
     a{ color: inherit; text-decoration:none; }
     a:hover{ text-decoration: underline; text-underline-offset: 3px; }
 
-    /* topbar */
     .topbar{
       position: sticky; top: 0;
       z-index: 20;
@@ -161,7 +157,6 @@
     }
     .btn svg{ width: 16px; height: 16px; }
 
-    /* hero/cards */
     .hero{ padding: 34px 0 18px; }
     .grid{
       display:grid;
@@ -181,14 +176,11 @@
       overflow: hidden;
       transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
     }
-
-    /* hover enlarge */
     .card:hover, .item:hover{
       transform: translateY(-3px) scale(1.015);
       border-color: color-mix(in oklab, var(--brand2), var(--line) 60%);
       box-shadow: 0 22px 60px rgba(0,0,0,.55);
     }
-
     .card:before{
       content:"";
       position:absolute; inset:-2px;
@@ -199,7 +191,6 @@
     }
     .card > *{ position: relative; z-index: 1; }
 
-    /* Glitch title */
     .glitch{
       position: relative;
       display: inline-block;
@@ -278,7 +269,6 @@
     }
     .cta{ display:flex; gap:10px; flex-wrap:wrap; }
 
-    /* Terminal */
     .terminal{
       font-family: var(--mono);
       font-size: 12.8px;
@@ -304,7 +294,6 @@
     }
     @keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
 
-    /* sections */
     section{ margin-top: 16px; }
     .section-title{
       display:flex; align-items:baseline; justify-content:space-between;
@@ -388,7 +377,6 @@
       display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
     }
 
-    /* HUD */
     .hud{
       position: fixed;
       top: 14px;
@@ -403,7 +391,7 @@
       background: rgba(5,6,16,.55);
       backdrop-filter: blur(10px);
       box-shadow: 0 18px 50px rgba(0,0,0,.35);
-      min-width: 260px;
+      min-width: 280px;
     }
     .hud .row{ display:flex; justify-content:space-between; gap: 12px; margin: 4px 0; white-space: nowrap; }
     .hud .k{ color: rgba(6,182,212,.95); }
@@ -412,7 +400,6 @@
     .hud .dim{ color: rgba(232,236,255,.72); }
     .hud .hr{ height:1px; background: rgba(255,255,255,.10); margin: 8px 0; }
 
-    /* bottom help */
     .help{
       position: fixed;
       left: 14px;
@@ -427,11 +414,10 @@
       background: rgba(5,6,16,.55);
       backdrop-filter: blur(10px);
       box-shadow: 0 18px 50px rgba(0,0,0,.25);
-      max-width: 480px;
+      max-width: 560px;
       line-height: 1.45;
     }
 
-    /* Shake container */
     #shakeRoot{
       will-change: transform;
       transform: translate3d(0,0,0);
@@ -449,13 +435,15 @@
   <div class="vignette"></div>
   <div class="scanlines"></div>
 
-  <!-- Everything that should shake goes inside shakeRoot -->
   <div id="shakeRoot">
     <div class="hud" id="hud">
       <div class="row"><span class="k">FPS</span> <span class="v" id="fps">--</span></div>
       <div class="row"><span class="k">Particles</span> <span class="dim" id="particles">100000</span></div>
       <div class="row"><span class="k">Res</span> <span class="dim" id="res">--</span></div>
       <div class="row"><span class="k">DPR</span> <span class="dim" id="dpr">--</span></div>
+      <div class="row"><span class="k">RenderScale</span> <span class="dim" id="rscale">--</span></div>
+      <div class="row"><span class="k">Quality</span> <span class="w" id="quality">--</span></div>
+      <div class="row"><span class="k">Auto</span> <span class="dim" id="auto">ON</span></div>
 
       <div class="hr"></div>
 
@@ -472,8 +460,11 @@
 
     <div class="help">
       <b style="color: rgba(6,182,212,.95);">交互：</b>
-      点击空白处触发形状变换（镜头推进/拉远 + 震动 + bloom 脉冲），鼠标移动轻微控制镜头。
-      <span style="opacity:.75;">（100k 粒子全在 GPU 变形 + bloom）</span>
+      点击空白处切换形状（镜头推进/拉远 + 震动 + bloom 脉冲）；
+      <span style="color: rgba(251,191,36,.92);">Space</span> 超强模式；
+      <span style="color: rgba(52,211,153,.95);">1/2/3/4</span> 直切形状；
+      <span style="color: rgba(232,236,255,.75);">A</span> 开关 Autoplay。
+      <span style="opacity:.75;">（100k 粒子 GPU-only + bloom，自适应性能）</span>
     </div>
 
     <div class="topbar">
@@ -527,8 +518,8 @@
             </div>
 
             <p>
-              这不是“炫技网页”，而是一个<strong>性能 + 工程 + 审美克制</strong>的签名 demo：
-              粒子位置与形状变换全部在 GPU shader 中完成（simplex noise 扰动 + bloom 发光），点击触发 morph 并带镜头动效与震动。
+              这是一个“Wall Street / quant desk”取向的签名 demo：<strong>克制霓虹 + 指标 HUD + 可解释性能</strong>。
+              粒子位置与形状变换全部在 GPU shader 中完成（simplex noise 扰动 + bloom 发光），支持键盘直切形状、自动演示和性能自适应。
             </p>
 
             <div class="cta">
@@ -537,8 +528,7 @@
             </div>
 
             <div class="callout">
-              <b>Wall Street 风格建议：</b>冷静霓虹（青/紫）+ 终端 HUD + 可解释指标。
-              “炸裂”要服务于<strong>工程可信度</strong>，而不是游戏感。
+              <b>Tip：</b>Space 的 “超强模式”是给评审/面试官演示用的，一秒钟让人记住你。
             </div>
           </div>
 
@@ -548,7 +538,7 @@
               <span class="term-title">~/demo</span>
             </div>
             <div class="term-body">
-              <div><span class="k">morph</span>: <span class="v">sphere</span> → <span class="v">torus</span> → <span class="v">cloud</span> → <span class="v">cube</span></div>
+              <div><span class="k">keys</span>: <span class="v">1/2/3/4</span> shape • <span class="w">Space</span> overdrive • <span class="v">A</span> autoplay</div>
               <div><span class="k">compute</span>: <span class="w">GPU-only</span> (no CPU positions)</div>
               <div><span class="k">fx</span>: <span class="v">bloom</span> + <span class="v">shake</span> + <span class="v">camera punch</span></div>
               <div style="margin-top:10px;">
@@ -562,16 +552,16 @@
       <section id="about">
         <div class="section-title">
           <h2>About</h2>
-          <div class="hint">写成“量化申请读起来像 research note”。</div>
+          <div class="hint">建议换成你自己的“quant narrative”。</div>
         </div>
         <div class="card">
           <p style="margin:0;">
-            这里放你最强 4–6 句：主线（概率/随机过程/风险/衍生品）→ 你做过什么（自动化/建模/ML）→ 证据（速度、准确率、规模）。
+            这里建议写：主线（概率/随机过程/数值方法）→ 你做过什么（自动化/风控/ML）→ 结果（速度、稳定性、规模）。
           </p>
           <div class="badges">
             <span class="badge">Probability</span>
             <span class="badge">Stochastic Processes</span>
-            <span class="badge">Risk</span>
+            <span class="badge">Numerical Methods</span>
             <span class="badge">Automation</span>
             <span class="badge">Applied ML</span>
           </div>
@@ -581,26 +571,26 @@
       <section id="projects">
         <div class="section-title">
           <h2>Projects</h2>
-          <div class="hint">Problem → Method → Result（量化最吃这套）。</div>
+          <div class="hint">Problem → Method → Result</div>
         </div>
         <div class="two">
           <div class="item">
             <div class="top">
               <div>
                 <div class="title">LLM/RAG Loan Agreement Review Copilot</div>
-                <div class="meta">LangChain • GPT-4 • GUI • Retrieval</div>
+                <div class="meta">RAG • evaluation • workflow automation</div>
               </div>
               <div class="meta">2024</div>
             </div>
             <ul class="clean">
-              <li><b>Impact:</b> 300 页 review → 1–2 小时；关键条款提取准确 + 快。</li>
-              <li><b>Method:</b> RAG pipeline + prompt engineering + evaluation loop。</li>
-              <li><b>Signal:</b> 可以放一份 sanitized 技术 writeup（架构 + 指标 + ablation）。</li>
+              <li><b>Impact:</b> 300 页 review → 1–2 小时；关键条款提取更快更稳。</li>
+              <li><b>Method:</b> Retrieval + prompt system + evaluation loop.</li>
+              <li><b>Signal:</b> 建议挂一份 sanitized writeup（架构 + 指标）。</li>
             </ul>
             <div class="badges">
               <span class="badge good">measured impact</span>
               <span class="badge">RAG</span>
-              <span class="badge">evaluation</span>
+              <span class="badge">eval</span>
             </div>
           </div>
 
@@ -613,9 +603,9 @@
               <div class="meta">2024–Now</div>
             </div>
             <ul class="clean">
-              <li><b>Impact:</b> 日常检查/调整自动化，提升可靠性与周转速度。</li>
-              <li><b>Method:</b> 模块化 task + 日志/错误面 + 测试工具 + Streamlit。</li>
-              <li><b>Signal:</b> 量化项目喜欢“工程能力 + 可复现 + 指标”。</li>
+              <li><b>Impact:</b> 日常检查/调整自动化，降低手工错误 + 提升周转速度。</li>
+              <li><b>Method:</b> task-based architecture + logging/QA + dashboards。</li>
+              <li><b>Signal:</b> 量化评审喜欢“工程可信度 + 可复现”。</li>
             </ul>
             <div class="badges">
               <span class="badge good">production-grade</span>
@@ -629,7 +619,7 @@
       <section id="experience">
         <div class="section-title">
           <h2>Experience</h2>
-          <div class="hint">每段 3 bullets，强调规模/指标/约束。</div>
+          <div class="hint">每段 3 bullets，突出规模/约束/指标。</div>
         </div>
         <div class="card">
           <div class="list">
@@ -643,13 +633,13 @@
               </div>
               <ul class="clean">
                 <li>Built end-to-end automation for daily liquidity checks and adjustments.</li>
-                <li>Reconciled data across instruments; created testing utilities and dashboards.</li>
-                <li>Focused on reliability, reproducibility, and decision-grade outputs.</li>
+                <li>Improved reliability via validation, reconciliation, and decision-grade outputs.</li>
+                <li>Designed for reproducibility and controlled operational constraints.</li>
               </ul>
             </div>
           </div>
           <div class="callout">
-            <b>最强加分项：</b>放一个你写的“系统设计 + 风险控制 + 测试策略”PDF（再配一个 repo）。
+            <b>加分项：</b>放一个“系统设计 PDF”（错误处理、测试策略、数据契约）+ 一个小型 demo repo。
           </div>
         </div>
       </section>
@@ -657,19 +647,19 @@
       <section id="skills">
         <div class="section-title">
           <h2>Skills</h2>
-          <div class="hint">把“会”变成“我用它做过什么”。</div>
+          <div class="hint">把“会”变成“做过什么”。</div>
         </div>
         <div class="two">
           <div class="item">
             <div class="title">Technical</div>
             <div class="badges">
               <span class="badge">Python</span>
-              <span class="badge">pandas / NumPy</span>
+              <span class="badge">NumPy / pandas</span>
               <span class="badge">SQL</span>
               <span class="badge">Streamlit</span>
-              <span class="badge">LangChain</span>
               <span class="badge">Three.js</span>
               <span class="badge">GLSL</span>
+              <span class="badge">GSAP</span>
             </div>
           </div>
           <div class="item">
@@ -688,7 +678,7 @@
       <section id="contact">
         <div class="section-title">
           <h2>Contact</h2>
-          <div class="hint">Make it frictionless.</div>
+          <div class="hint">越少步骤越好。</div>
         </div>
         <div class="card">
           <p style="margin:0;">
@@ -700,7 +690,7 @@
 
       <footer>
         <div>© <span id="year"></span> Andy Wang</div>
-        <div style="opacity:.85;">Single-file HTML • GPU morph + bloom + camera punch + HUD</div>
+        <div style="opacity:.85;">Single-file • GPU morph + bloom + camera punch + HUD + autoplay + adaptive perf</div>
       </footer>
     </main>
   </div>
@@ -721,6 +711,9 @@
       particles: document.getElementById("particles"),
       res: document.getElementById("res"),
       dpr: document.getElementById("dpr"),
+      rscale: document.getElementById("rscale"),
+      quality: document.getElementById("quality"),
+      auto: document.getElementById("auto"),
       shape: document.getElementById("shape"),
       shapeId: document.getElementById("shapeId"),
       mix: document.getElementById("mix"),
@@ -732,6 +725,20 @@
     const SHAPES = ["Sphere", "Torus", "NoiseCloud", "Cube"];
     const SHAPE_ID = { Sphere: 0, Torus: 1, NoiseCloud: 2, Cube: 3 };
 
+    // ===== Quality ladder (adaptive) =====
+    // level: 0 low, 1 mid, 2 high
+    const QUALITY = [
+      { name: "LOW",  dprCap: 1.0, pointSize: 22.0, bloomStrength: 0.95, bloomRadius: 0.40, bloomThreshold: 0.12 },
+      { name: "MID",  dprCap: 1.5, pointSize: 24.0, bloomStrength: 1.10, bloomRadius: 0.46, bloomThreshold: 0.11 },
+      { name: "HIGH", dprCap: 2.0, pointSize: 28.0, bloomStrength: 1.18, bloomRadius: 0.48, bloomThreshold: 0.11 },
+    ];
+    const perf = {
+      level: 2,
+      cooldown: 0,
+      fpsAvg: 60,
+      fpsSamples: [],
+    };
+
     // ===== Renderer =====
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -739,8 +746,13 @@
       alpha: true,
       powerPreference: "high-performance",
     });
-    const DPR_CAP = 2.0;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, DPR_CAP));
+
+    function getDPR(){
+      const cap = QUALITY[perf.level].dprCap;
+      return Math.min(window.devicePixelRatio || 1, cap);
+    }
+
+    renderer.setPixelRatio(getDPR());
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x050610, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -749,17 +761,15 @@
     // ===== Scene / Camera =====
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 160);
-
-    // Base camera state (GSAP will punch this)
     const camBase = { x: 0, y: 0, z: 18 };
     camera.position.set(camBase.x, camBase.y, camBase.z);
 
     const group = new THREE.Group();
     scene.add(group);
 
-    // ===== Geometry (no CPU positions) =====
+    // ===== Geometry (no CPU positions used) =====
     const geom = new THREE.BufferGeometry();
-    const positions = new Float32Array(N * 3); // unused placeholder
+    const positions = new Float32Array(N * 3); // placeholder only
     const aIndex = new Float32Array(N);
     const aSeed = new Float32Array(N * 3);
 
@@ -870,14 +880,12 @@
         float v = uv.y;
 
         if (shapeId < 0.5){
-          // Sphere
           float z = 1.0 - 2.0 * u;
           float r = sqrt(max(1.0 - z*z, 0.0));
           float theta = 6.28318530718 * v;
           return vec3(r*cos(theta), r*sin(theta), z) * uRadius;
         }
         if (shapeId < 1.5){
-          // Torus
           float a = 6.28318530718 * u;
           float b = 6.28318530718 * v;
           float R = uTorusR;
@@ -888,13 +896,11 @@
           return vec3(x,y,z);
         }
         if (shapeId < 2.5){
-          // Noise cloud
           vec3 base = (seed * 2.0 - 1.0) * (uRadius * 1.05);
           float n = snoise(base * 0.55 + vec3(0.0, uTime*0.18, uTime*0.12));
           vec3 dir = normalize(base + 0.0001);
           return dir * (uRadius * (0.25 + 0.85*abs(n))) + base * 0.25;
         }
-        // Cube volume
         return (seed * 2.0 - 1.0) * (uRadius * 0.92);
       }
 
@@ -913,14 +919,12 @@
         float t = smoothstep(0.0, 1.0, uMix);
         vec3 p = mix(pA, pB, t);
 
-        // layered simplex noise (natural turbulence)
         float n1 = snoise(p * 0.35 + vec3(uTime*0.10, uTime*0.12, uTime*0.08));
         float n2 = snoise(p * 0.60 + vec3(uTime*0.18, 0.0, uTime*0.14));
         float n3 = snoise(p * 1.10 + vec3(0.0, uTime*0.20, uTime*0.05));
 
         vec3 wobble = vec3(n1, n2, n3) * uNoiseAmp;
 
-        // swirl
         p.xy = rot(0.12 * sin(uTime*0.35) + 0.05*n2) * p.xy;
         p.xz = rot(0.08 * cos(uTime*0.28) + 0.04*n1) * p.xz;
 
@@ -932,7 +936,6 @@
         float dist = max(0.001, -mv.z);
         gl_PointSize = uPointSize * (1.0 / dist) * (0.85 + 0.28 * abs(n1));
 
-        // color + glow: restrained cyan/purple with slight variation
         float colorT = 0.5 + 0.5*sin(uTime*0.12 + seed.z*6.2831);
         vCol = mix(vec3(0.55, 0.32, 1.0), vec3(0.06, 0.92, 0.98), colorT);
         vGlow = 0.55 + 0.45 * abs(n2);
@@ -953,9 +956,7 @@
         float halo = smoothstep(1.0, 0.0, r);
         float alpha = (0.16 * halo + 0.90 * core) * (0.60 + 0.40*vGlow);
 
-        // Boost brightness for bloom but keep “desk-like” palette
         vec3 col = vCol * (1.25 + 1.90*core) * (0.90 + 0.30*halo);
-
         gl_FragColor = vec4(col, alpha);
       }
     `;
@@ -969,7 +970,7 @@
       uTorusR: { value: 4.2 },
       uTorusr: { value: 1.55 },
       uNoiseAmp: { value: 0.78 },
-      uPointSize: { value: 28.0 },
+      uPointSize: { value: QUALITY[perf.level].pointSize },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -990,26 +991,38 @@
 
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      1.18,  // strength
-      0.48,  // radius
-      0.11   // threshold
+      QUALITY[perf.level].bloomStrength,
+      QUALITY[perf.level].bloomRadius,
+      QUALITY[perf.level].bloomThreshold
     );
     composer.addPass(bloomPass);
 
-    // ===== Interaction state =====
+    // ===== State =====
     let shapeIndex = 0;
 
     const mouse = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
-
-    // Inertial rotation velocities (for punch + decay)
     const spin = { vx: 0, vy: 0 };
+
+    // autoplay (default ON)
+    const auto = {
+      enabled: true,
+      interval: 6.0,     // seconds
+      nextAt: 3.0,       // first trigger
+      pauseUntil: 0.0,   // when user interacts, pause
+      pauseSeconds: 14.0,
+    };
 
     function updateHUD(){
       HUD.particles.textContent = String(N);
-      const dpr = Math.min(window.devicePixelRatio, DPR_CAP);
+
+      const dpr = getDPR();
       HUD.dpr.textContent = dpr.toFixed(2);
+      HUD.rscale.textContent = `${QUALITY[perf.level].dprCap.toFixed(1)} cap`;
       HUD.res.textContent = `${Math.floor(window.innerWidth*dpr)}×${Math.floor(window.innerHeight*dpr)}`;
+
+      HUD.quality.textContent = QUALITY[perf.level].name;
+      HUD.auto.textContent = auto.enabled ? "ON" : "OFF";
 
       HUD.shape.textContent = SHAPES[shapeIndex];
       HUD.shapeId.textContent = String(SHAPE_ID[SHAPES[shapeIndex]]);
@@ -1022,7 +1035,7 @@
       HUD.cam.textContent = `${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}`;
     }
 
-    // mouse moves steer camera
+    // ===== Mouse steer =====
     window.addEventListener("mousemove", (e) => {
       const nx = (e.clientX / window.innerWidth) * 2 - 1;
       const ny = (e.clientY / window.innerHeight) * 2 - 1;
@@ -1030,10 +1043,12 @@
       target.y = ny;
     }, { passive: true });
 
-    // ===== “炸裂”点击：镜头 punch + shake + bloom pulse + inertial spin =====
+    // ===== FX helpers =====
+    function userInteracted(){
+      auto.pauseUntil = uniforms.uTime.value + auto.pauseSeconds;
+    }
+
     function screenShake(intensity = 10, duration = 0.35){
-      // small, crisp shake: translate shakeRoot a few px
-      // GSAP's random() helper works inside strings
       gsap.fromTo(shakeRoot,
         { x: 0, y: 0 },
         {
@@ -1048,73 +1063,44 @@
       );
     }
 
-    function cameraPunch(){
-      // quick push-in then pull-out with overshoot
-      const z0 = camBase.z;
-      const punchIn = z0 - 4.0;  // closer
-      const punchOut = z0 + 1.1; // slight overshoot back
+    function cameraPunch(superMode=false){
+      const z0 = 18;
+      const inAmt  = superMode ? 6.2 : 4.0;
+      const outAmt = superMode ? 2.0 : 1.1;
+
+      const punchIn = z0 - inAmt;
+      const punchOut = z0 + outAmt;
+
       gsap.timeline()
-        .to(camBase, { z: punchIn, duration: 0.18, ease: "power3.out" }, 0)
-        .to(camBase, { z: punchOut, duration: 0.38, ease: "power2.out" }, 0.18)
-        .to(camBase, { z: z0, duration: 0.55, ease: "elastic.out(1, 0.35)" }, 0.56);
+        .to(camBase, { z: punchIn, duration: superMode ? 0.14 : 0.18, ease: "power3.out" }, 0)
+        .to(camBase, { z: punchOut, duration: superMode ? 0.32 : 0.38, ease: "power2.out" }, superMode ? 0.14 : 0.18)
+        .to(camBase, { z: z0, duration: superMode ? 0.62 : 0.55, ease: "elastic.out(1, 0.35)" }, superMode ? 0.42 : 0.56);
     }
 
-    function bloomPulse(){
-      const s0 = 1.18;
+    function bloomPulse(superMode=false){
+      const baseS = QUALITY[perf.level].bloomStrength;
+      const baseR = QUALITY[perf.level].bloomRadius;
+      const baseT = QUALITY[perf.level].bloomThreshold;
+
+      const peakS = superMode ? Math.min(2.15, baseS + 1.15) : Math.min(1.80, baseS + 0.60);
+      const peakR = superMode ? Math.min(0.70, baseR + 0.22) : Math.min(0.62, baseR + 0.14);
+      const peakT = superMode ? Math.max(0.03, baseT - 0.07) : Math.max(0.05, baseT - 0.06);
+
       gsap.timeline()
-        .to(bloomPass, { strength: 1.75, duration: 0.20, ease: "power2.out" }, 0)
-        .to(bloomPass, { radius: 0.62, duration: 0.20, ease: "power2.out" }, 0)
-        .to(bloomPass, { threshold: 0.05, duration: 0.20, ease: "power2.out" }, 0)
-        .to(bloomPass, { strength: s0, duration: 0.60, ease: "power2.inOut" }, 0.22)
-        .to(bloomPass, { radius: 0.48, duration: 0.60, ease: "power2.inOut" }, 0.22)
-        .to(bloomPass, { threshold: 0.11, duration: 0.60, ease: "power2.inOut" }, 0.22);
+        .to(bloomPass, { strength: peakS, duration: 0.18, ease: "power2.out" }, 0)
+        .to(bloomPass, { radius: peakR, duration: 0.18, ease: "power2.out" }, 0)
+        .to(bloomPass, { threshold: peakT, duration: 0.18, ease: "power2.out" }, 0)
+        .to(bloomPass, { strength: baseS, duration: 0.62, ease: "power2.inOut" }, 0.20)
+        .to(bloomPass, { radius: baseR, duration: 0.62, ease: "power2.inOut" }, 0.20)
+        .to(bloomPass, { threshold: baseT, duration: 0.62, ease: "power2.inOut" }, 0.20);
     }
 
-    function spinKick(){
-      // add angular velocity; render loop will apply and decay it
-      spin.vx += gsap.utils.random(-0.06, 0.06);
-      spin.vy += gsap.utils.random(0.08, 0.16);
+    function spinKick(superMode=false){
+      spin.vx += gsap.utils.random(-0.06, 0.06) * (superMode ? 1.8 : 1.0);
+      spin.vy += gsap.utils.random(0.08, 0.16) * (superMode ? 2.0 : 1.0);
     }
 
-    function morphTo(nextShapeId){
-      uniforms.uShapeB.value = nextShapeId;
-      uniforms.uMix.value = 0;
-
-      // morph + noise pulse (GPU)
-      gsap.timeline()
-        .to(uniforms.uNoiseAmp, { value: 1.55, duration: 0.22, ease: "power2.out" }, 0)
-        .to(uniforms.uMix, {
-          value: 1,
-          duration: 1.05,
-          ease: "power2.inOut",
-          onUpdate: () => { HUD.mix.textContent = uniforms.uMix.value.toFixed(2); }
-        }, 0)
-        .to(uniforms.uNoiseAmp, { value: 0.78, duration: 0.85, ease: "power2.inOut" }, 0.25)
-        .add(() => {
-          uniforms.uShapeA.value = nextShapeId;
-          uniforms.uMix.value = 0;
-        });
-    }
-
-    window.addEventListener("click", (e) => {
-      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
-      if (tag === "a" || tag === "button") return;
-
-      // update shape index
-      shapeIndex = (shapeIndex + 1) % SHAPES.length;
-      const nextName = SHAPES[shapeIndex];
-      const nextId = SHAPE_ID[nextName];
-
-      // effects
-      cameraPunch();
-      screenShake(10, 0.35);
-      bloomPulse();
-      spinKick();
-
-      // morph
-      morphTo(nextId);
-
-      // micro UI glitch pulse on title
+    function microTitlePulse(){
       const title = document.querySelector(".glitch");
       gsap.fromTo(title, { filter: "none" }, {
         filter: "contrast(1.4) saturate(1.25)",
@@ -1123,11 +1109,141 @@
         repeat: 1,
         ease: "power2.out"
       });
+    }
+
+    // ===== Morph =====
+    let morphTL = null;
+
+    function morphTo(nextShapeId, superMode=false){
+      uniforms.uShapeB.value = nextShapeId;
+      uniforms.uMix.value = 0;
+
+      // kill previous morph to keep crisp interaction
+      if (morphTL) morphTL.kill();
+
+      const noiseBase = 0.78;
+      const noisePeak = superMode ? 2.15 : 1.55;
+
+      morphTL = gsap.timeline()
+        .to(uniforms.uNoiseAmp, { value: noisePeak, duration: superMode ? 0.18 : 0.22, ease: "power2.out" }, 0)
+        .to(uniforms.uMix, {
+          value: 1,
+          duration: superMode ? 0.88 : 1.05,
+          ease: superMode ? "power3.inOut" : "power2.inOut",
+        }, 0)
+        .to(uniforms.uNoiseAmp, { value: noiseBase, duration: superMode ? 0.75 : 0.85, ease: "power2.inOut" }, superMode ? 0.22 : 0.25)
+        .add(() => {
+          uniforms.uShapeA.value = nextShapeId;
+          uniforms.uMix.value = 0;
+        });
+    }
+
+    function triggerShape(index, { superMode=false, withFX=true, isUser=true } = {}){
+      if (index < 0 || index >= SHAPES.length) return;
+      if (isUser) userInteracted();
+
+      const nextName = SHAPES[index];
+      const nextId = SHAPE_ID[nextName];
+
+      // if already on target, still give a tiny punch on super
+      if (shapeIndex === index && !superMode) return;
+
+      shapeIndex = index;
+
+      if (withFX){
+        cameraPunch(superMode);
+        bloomPulse(superMode);
+        screenShake(superMode ? 14 : 10, superMode ? 0.42 : 0.35);
+        spinKick(superMode);
+        microTitlePulse();
+      }
+
+      morphTo(nextId, superMode);
+      updateHUD();
+    }
+
+    function triggerNext({ superMode=false, withFX=true, isUser=true } = {}){
+      const next = (shapeIndex + 1) % SHAPES.length;
+      triggerShape(next, { superMode, withFX, isUser });
+    }
+
+    // ===== Click =====
+    window.addEventListener("click", (e) => {
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+      if (tag === "a" || tag === "button") return;
+      triggerNext({ superMode:false, withFX:true, isUser:true });
     });
 
-    // ===== FPS counter =====
+    // ===== Keyboard =====
+    window.addEventListener("keydown", (e) => {
+      const k = e.key.toLowerCase();
+      if (k === "a"){
+        auto.enabled = !auto.enabled;
+        userInteracted();
+        updateHUD();
+        return;
+      }
+      if (k === " "){
+        e.preventDefault();
+        triggerNext({ superMode:true, withFX:true, isUser:true });
+        return;
+      }
+      if (k === "1") triggerShape(0, { superMode:false, withFX:true, isUser:true });
+      if (k === "2") triggerShape(1, { superMode:false, withFX:true, isUser:true });
+      if (k === "3") triggerShape(2, { superMode:false, withFX:true, isUser:true });
+      if (k === "4") triggerShape(3, { superMode:false, withFX:true, isUser:true });
+    });
+
+    // ===== Adaptive performance =====
+    function applyQuality(level){
+      perf.level = Math.max(0, Math.min(QUALITY.length - 1, level));
+
+      const q = QUALITY[perf.level];
+
+      // update DPR
+      renderer.setPixelRatio(getDPR());
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      composer.setSize(window.innerWidth, window.innerHeight);
+      bloomPass.setSize(window.innerWidth, window.innerHeight);
+
+      // update point size + bloom baseline
+      uniforms.uPointSize.value = q.pointSize;
+      bloomPass.strength = q.bloomStrength;
+      bloomPass.radius = q.bloomRadius;
+      bloomPass.threshold = q.bloomThreshold;
+
+      updateHUD();
+    }
+
+    function considerPerfAdjust(fpsAvg){
+      // cooldown to avoid oscillation
+      if (perf.cooldown > 0) return;
+
+      // degrade
+      if (fpsAvg < 35 && perf.level > 0){
+        applyQuality(perf.level - 1);
+        perf.cooldown = 3.0;
+        return;
+      }
+      if (fpsAvg < 45 && perf.level > 0){
+        applyQuality(perf.level - 1);
+        perf.cooldown = 3.0;
+        return;
+      }
+
+      // upgrade (hysteresis: need really stable high fps)
+      if (fpsAvg > 57 && perf.level < 2){
+        applyQuality(perf.level + 1);
+        perf.cooldown = 4.0;
+        return;
+      }
+    }
+
+    // ===== FPS =====
     let last = performance.now();
     let frames = 0;
+    let fpsUpdateTimer = 0;
 
     // ===== Animate =====
     const clock = new THREE.Clock();
@@ -1137,11 +1253,21 @@
       const dt = clock.getDelta();
       uniforms.uTime.value += dt;
 
+      // autoplay
+      if (auto.enabled && uniforms.uTime.value > auto.pauseUntil && uniforms.uTime.value > auto.nextAt){
+        auto.nextAt = uniforms.uTime.value + auto.interval;
+        // autoplay uses gentler FX
+        triggerNext({ superMode:false, withFX:true, isUser:false });
+      }
+
+      // cooldown decay
+      perf.cooldown = Math.max(0, perf.cooldown - dt);
+
       // smooth mouse
       mouse.x += (target.x - mouse.x) * 0.06;
       mouse.y += (target.y - mouse.y) * 0.06;
 
-      // camera based on base + mouse offsets (base is GSAP-controlled for punch)
+      // camera base + mouse offsets
       camera.position.x = camBase.x + mouse.x * 2.6;
       camera.position.y = camBase.y - mouse.y * 1.7;
       camera.position.z = camBase.z + (Math.abs(mouse.x) + Math.abs(mouse.y)) * 0.9;
@@ -1163,7 +1289,21 @@
         const fps = Math.round((frames * 1000) / (now - last));
         frames = 0;
         last = now;
+
         HUD.fps.textContent = String(fps);
+
+        // rolling average for adaptive perf
+        perf.fpsSamples.push(fps);
+        if (perf.fpsSamples.length > 12) perf.fpsSamples.shift();
+        const avg = perf.fpsSamples.reduce((a,b)=>a+b,0) / perf.fpsSamples.length;
+        perf.fpsAvg = avg;
+
+        fpsUpdateTimer += 0.25;
+        if (fpsUpdateTimer >= 1.0){
+          fpsUpdateTimer = 0;
+          considerPerfAdjust(avg);
+        }
+
         updateHUD();
       }
     }
@@ -1172,8 +1312,7 @@
     // ===== Resize =====
     function onResize(){
       const w = window.innerWidth, h = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio, DPR_CAP);
-      renderer.setPixelRatio(dpr);
+      renderer.setPixelRatio(getDPR());
       renderer.setSize(w, h);
       composer.setSize(w, h);
       camera.aspect = w / h;
@@ -1185,6 +1324,7 @@
 
     // ===== Init =====
     document.getElementById("year").textContent = new Date().getFullYear();
+    applyQuality(perf.level);
     updateHUD();
   </script>
 </body>
