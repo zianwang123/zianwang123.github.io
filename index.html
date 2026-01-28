@@ -1,1331 +1,441 @@
-<!doctype html>
-<html lang="zh-CN" data-theme="dark">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Quant portfolio + GPU particle morph system (100k) with bloom + shake + HUD." />
-  <meta name="theme-color" content="#050610" />
-  <title>Andy Wang — Quant Finance</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andy Wang | Quant Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --bg-dark: #050505;
+            --panel-bg: rgba(10, 10, 10, 0.85);
+            --border-color: rgba(0, 242, 255, 0.3);
+        }
 
-  <!-- GSAP -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            font-family: 'JetBrains Mono', monospace;
+            color: #e0e0e0;
+        }
 
-  <style>
-    :root{
-      --bg:#050610;
-      --panel: rgba(18, 24, 46, 0.62);
-      --panel2: rgba(10, 14, 30, 0.52);
-      --text:#e8ecff;
-      --muted:#a8b0d6;
-      --line:rgba(255,255,255,0.10);
-      --brand:#7c3aed;
-      --brand2:#06b6d4;
-      --good:#34d399;
-      --amber:#fbbf24;
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
 
-      --shadow: 0 16px 44px rgba(0,0,0,.45);
-      --radius: 18px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-    }
+        /* --- UI OVERLAY --- */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+            box-sizing: border-box;
+        }
 
-    *{ box-sizing:border-box; }
-    html, body { height:100%; }
-    body{
-      margin:0;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(1100px 700px at 20% 10%, rgba(124,58,237,.18), transparent 60%),
-        radial-gradient(900px 600px at 80% 20%, rgba(6,182,212,.14), transparent 58%),
-        radial-gradient(800px 560px at 50% 92%, rgba(52,211,153,.08), transparent 58%),
-        var(--bg);
-      overflow-x: hidden;
-    }
+        .pointer-events-auto { pointer-events: auto; }
 
-    #bg{
-      position: fixed; inset: 0;
-      width: 100%; height: 100%;
-      z-index: 0; display: block;
-      background: transparent;
-    }
+        /* --- HUD ELEMENTS --- */
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
 
-    .vignette{
-      position: fixed; inset: 0;
-      z-index: 1; pointer-events: none;
-      background:
-        radial-gradient(1000px 700px at 50% 40%, rgba(0,0,0,.00), rgba(0,0,0,.60));
-      mix-blend-mode: multiply;
-    }
-    .scanlines{
-      position: fixed; inset: 0;
-      z-index: 2; pointer-events: none;
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,0.02),
-          rgba(255,255,255,0.02) 1px,
-          rgba(0,0,0,0.00) 2px,
-          rgba(0,0,0,0.00) 6px
-        );
-      opacity: .10;
-      mix-blend-mode: overlay;
-    }
+        .glitch-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--neon-blue);
+            position: relative;
+            text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                        -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+                        0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            animation: glitch 500ms infinite;
+        }
 
-    .wrap{
-      position: relative; z-index: 10;
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 26px 18px 110px;
-    }
+        @keyframes glitch {
+            0% { text-shadow: 1px 0 0 red, -1px 0 0 blue; }
+            14% { text-shadow: 1px 0 0 red, -1px 0 0 blue; }
+            15% { text-shadow: -3px -1px 0 red, 3px 1px 0 blue; }
+            49% { text-shadow: -3px -1px 0 red, 3px 1px 0 blue; }
+            50% { text-shadow: 2px 2px 0 red, -1px -2px 0 blue; }
+            99% { text-shadow: 2px 2px 0 red, -1px -2px 0 blue; }
+            100% { text-shadow: -1px 0 0 red, 1px 0 0 blue; }
+        }
 
-    a{ color: inherit; text-decoration:none; }
-    a:hover{ text-decoration: underline; text-underline-offset: 3px; }
+        .system-metrics {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            min-width: 200px;
+        }
 
-    .topbar{
-      position: sticky; top: 0;
-      z-index: 20;
-      backdrop-filter: blur(10px);
-      background: color-mix(in oklab, rgba(4,6,16,.92), transparent 15%);
-      border-bottom: 1px solid var(--line);
-    }
-    .nav{
-      max-width:1120px; margin:0 auto;
-      padding: 12px 18px;
-      display:flex; align-items:center; justify-content: space-between;
-      gap: 14px;
-    }
-    .brand{ display:flex; align-items:center; gap:10px; min-width: 260px; }
-    .logo{
-      width: 34px; height: 34px; border-radius: 10px;
-      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(6,182,212,.90));
-      box-shadow: 0 10px 26px rgba(124,58,237,.22);
-      position: relative; overflow:hidden;
-    }
-    .logo:after{
-      content:""; position:absolute; inset:-40%;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.60), transparent 40%);
-      transform: rotate(15deg); opacity:.35;
-    }
-    .brand .name{ font-weight: 900; letter-spacing: .2px; }
-    .brand .tag{ font-family: var(--mono); font-size: 12px; color: var(--muted); }
+        .metric-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .metric-label { color: var(--neon-blue); opacity: 0.7; }
 
-    .links{
-      display:flex; align-items:center; justify-content:center;
-      gap: 10px; flex-wrap: wrap;
-      font-family: var(--mono); font-size: 12.5px;
-      opacity: .95;
-    }
-    .links a{
-      padding: 7px 10px;
-      border-radius: 12px;
-      border: 1px solid transparent;
-      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
-    }
-    .links a:hover{
-      border-color: var(--line);
-      text-decoration: none;
-      background: color-mix(in oklab, var(--panel), transparent 25%);
-      transform: translateY(-1px);
-    }
+        /* --- CONTENT PANELS --- */
+        .content-area {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 40px;
+            margin-top: 50px;
+            height: 60vh;
+        }
 
-    .actions{ display:flex; gap:10px; align-items:center; justify-content:flex-end; min-width: 260px; }
-    .btn{
-      display:inline-flex; align-items:center; gap:10px;
-      border:1px solid var(--line);
-      background: color-mix(in oklab, var(--panel), transparent 10%);
-      padding: 9px 12px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.12);
-      font-family: var(--mono);
-      font-size: 12.5px;
-      cursor:pointer;
-      user-select:none;
-      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
-    }
-    .btn:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 12px 28px rgba(0,0,0,.24);
-      border-color: color-mix(in oklab, var(--brand2), var(--line) 60%);
-      text-decoration:none;
-    }
-    .btn.primary{
-      border-color: color-mix(in oklab, var(--brand), var(--line) 60%);
-      background: linear-gradient(135deg, rgba(124,58,237,.92), rgba(6,182,212,.82));
-      color: white;
-      font-weight: 800;
-    }
-    .btn svg{ width: 16px; height: 16px; }
+        .profile-card {
+            background: var(--panel-bg);
+            border-left: 3px solid var(--neon-blue);
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            pointer-events: auto;
+            overflow-y: auto;
+        }
 
-    .hero{ padding: 34px 0 18px; }
-    .grid{
-      display:grid;
-      grid-template-columns: 1.35fr .65fr;
-      gap: 16px;
-      align-items: stretch;
-    }
-    @media (max-width: 920px){ .grid{ grid-template-columns: 1fr; } .brand, .actions{ min-width:auto; } }
+        .profile-card h2 { font-size: 1.2rem; margin-top: 0; color: var(--neon-blue); }
+        .profile-card p { font-size: 0.85rem; opacity: 0.8; line-height: 1.5; }
 
-    .card{
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px 18px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-    }
-    .card:hover, .item:hover{
-      transform: translateY(-3px) scale(1.015);
-      border-color: color-mix(in oklab, var(--brand2), var(--line) 60%);
-      box-shadow: 0 22px 60px rgba(0,0,0,.55);
-    }
-    .card:before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(550px 220px at 20% 20%, rgba(124,58,237,.18), transparent 60%),
-        radial-gradient(520px 240px at 85% 25%, rgba(6,182,212,.14), transparent 60%);
-      opacity:.9; pointer-events:none;
-    }
-    .card > *{ position: relative; z-index: 1; }
+        .experience-list { margin-top: 20px; }
+        .exp-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .exp-title { font-weight: bold; font-size: 0.9rem; }
+        .exp-company { font-size: 0.8rem; color: var(--neon-blue); }
 
-    .glitch{
-      position: relative;
-      display: inline-block;
-      font-weight: 950;
-      letter-spacing: .2px;
-      line-height: 1.05;
-      font-size: clamp(28px, 3.3vw, 46px);
-      margin: 0 0 10px;
-      text-shadow: 0 0 22px rgba(124,58,237,.14);
-    }
-    .glitch:before,
-    .glitch:after{
-      content: attr(data-text);
-      position: absolute;
-      left: 0; top: 0;
-      width: 100%;
-      overflow: hidden;
-      clip-path: inset(0 0 0 0);
-      opacity: 0.85;
-      pointer-events:none;
-    }
-    .glitch:before{
-      transform: translate(2px, 0);
-      color: rgba(6,182,212,.85);
-      mix-blend-mode: screen;
-      animation: glitchTop 2.4s infinite linear alternate-reverse;
-    }
-    .glitch:after{
-      transform: translate(-2px, 0);
-      color: rgba(124,58,237,.85);
-      mix-blend-mode: screen;
-      animation: glitchBot 2.1s infinite linear alternate-reverse;
-    }
-    @keyframes glitchTop{
-      0%{ clip-path: inset(0 0 86% 0); }
-      12%{ clip-path: inset(12% 0 70% 0); }
-      26%{ clip-path: inset(0 0 60% 0); }
-      44%{ clip-path: inset(20% 0 52% 0); }
-      62%{ clip-path: inset(0 0 72% 0); }
-      78%{ clip-path: inset(10% 0 75% 0); }
-      100%{ clip-path: inset(0 0 86% 0); }
-    }
-    @keyframes glitchBot{
-      0%{ clip-path: inset(72% 0 0 0); }
-      18%{ clip-path: inset(58% 0 12% 0); }
-      38%{ clip-path: inset(68% 0 6% 0); }
-      56%{ clip-path: inset(50% 0 22% 0); }
-      74%{ clip-path: inset(64% 0 6% 0); }
-      100%{ clip-path: inset(72% 0 0 0); }
-    }
+        /* --- CONTROLS --- */
+        .controls {
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+        }
 
-    .sub{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      font-family: var(--mono);
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 14px;
-    }
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: color-mix(in oklab, var(--panel2), transparent 20%);
-    }
-    .dot{
-      width: 8px; height: 8px; border-radius: 99px;
-      background: linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 0 0 3px rgba(124,58,237,.14);
-    }
-    .hero p{
-      margin: 0 0 16px;
-      color: color-mix(in oklab, var(--text), var(--muted) 20%);
-      max-width: 78ch;
-      font-size: 15.5px;
-    }
-    .cta{ display:flex; gap:10px; flex-wrap:wrap; }
+        .btn-morph {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 25px;
+            font-family: 'JetBrains Mono';
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
 
-    .terminal{
-      font-family: var(--mono);
-      font-size: 12.8px;
-      background: color-mix(in oklab, rgba(0,0,0,.80), var(--panel) 45%);
-      border: 1px solid color-mix(in oklab, var(--line), rgba(124,58,237,.20) 30%);
-      border-radius: 16px;
-      padding: 14px;
-      overflow:hidden;
-      position: relative;
-    }
-    .term-top{ display:flex; gap:8px; align-items:center; margin-bottom: 10px; opacity: .9; }
-    .bubble{ width:10px; height:10px; border-radius:99px; background: rgba(255,255,255,.15); }
-    .term-title{ margin-left:auto; font-size: 11px; color: rgba(255,255,255,.70); }
-    .term-body{ color: rgba(255,255,255,.86); line-height: 1.6; }
-    .term-body .k{ color: rgba(6,182,212,.95); }
-    .term-body .v{ color: rgba(52,211,153,.95); }
-    .term-body .w{ color: rgba(251,191,36,.92); }
-    .blink{
-      display:inline-block; width: 9px; height: 14px;
-      background: rgba(255,255,255,.75); margin-left: 4px;
-      animation: blink 1.1s infinite;
-      transform: translateY(2px);
-    }
-    @keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+        .btn-morph:hover {
+            background: var(--neon-blue);
+            color: black;
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
 
-    section{ margin-top: 16px; }
-    .section-title{
-      display:flex; align-items:baseline; justify-content:space-between;
-      gap: 12px; padding: 0 2px;
-      margin: 18px 0 10px;
-    }
-    .section-title h2{
-      margin: 0;
-      font-size: 16px;
-      font-family: var(--mono);
-      letter-spacing: .4px;
-      text-transform: uppercase;
-      color: color-mix(in oklab, var(--text), var(--muted) 25%);
-    }
-    .section-title .hint{
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .two{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 920px){ .two{ grid-template-columns: 1fr; } }
-
-    .list{ display:flex; flex-direction:column; gap: 10px; }
-
-    .item{
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: color-mix(in oklab, var(--panel), transparent 8%);
-      padding: 14px;
-      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-    }
-    .item .top{
-      display:flex; align-items:flex-start; justify-content:space-between; gap: 12px;
-    }
-    .item .title{ font-weight: 900; letter-spacing: .2px; }
-    .item .meta{
-      font-family: var(--mono);
-      color: var(--muted);
-      font-size: 12.5px;
-      white-space: nowrap;
-      margin-top: 2px;
-    }
-    ul.clean{ margin: 10px 0 0 18px; padding:0; color: color-mix(in oklab, var(--text), var(--muted) 18%); }
-    ul.clean li{ margin: 6px 0; }
-
-    .badges{ margin-top: 10px; display:flex; flex-wrap:wrap; gap: 8px; }
-    .badge{
-      font-family: var(--mono);
-      font-size: 12px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      color: color-mix(in oklab, var(--text), var(--muted) 20%);
-      background: color-mix(in oklab, var(--panel2), transparent 10%);
-    }
-    .badge.good{ border-color: color-mix(in oklab, var(--good), var(--line) 70%); }
-
-    .callout{
-      margin-top:12px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border:1px dashed var(--line);
-      font-family: var(--mono);
-      color: var(--muted);
-      font-size: 12.5px;
-      background: color-mix(in oklab, rgba(0,0,0,.35), transparent 35%);
-    }
-
-    footer{
-      margin-top: 22px;
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 12px;
-      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
-    }
-
-    .hud{
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 30;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(232,236,255,.92);
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(5,6,16,.55);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 18px 50px rgba(0,0,0,.35);
-      min-width: 280px;
-    }
-    .hud .row{ display:flex; justify-content:space-between; gap: 12px; margin: 4px 0; white-space: nowrap; }
-    .hud .k{ color: rgba(6,182,212,.95); }
-    .hud .v{ color: rgba(52,211,153,.95); }
-    .hud .w{ color: rgba(251,191,36,.92); }
-    .hud .dim{ color: rgba(232,236,255,.72); }
-    .hud .hr{ height:1px; background: rgba(255,255,255,.10); margin: 8px 0; }
-
-    .help{
-      position: fixed;
-      left: 14px;
-      bottom: 14px;
-      z-index: 30;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(232,236,255,.86);
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(5,6,16,.55);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 18px 50px rgba(0,0,0,.25);
-      max-width: 560px;
-      line-height: 1.45;
-    }
-
-    #shakeRoot{
-      will-change: transform;
-      transform: translate3d(0,0,0);
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .card, .item, .links a, .btn { transition: none !important; }
-      .glitch:before, .glitch:after { animation: none !important; }
-    }
-  </style>
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-blue); }
+    </style>
 </head>
-
 <body>
-  <canvas id="bg"></canvas>
-  <div class="vignette"></div>
-  <div class="scanlines"></div>
 
-  <div id="shakeRoot">
-    <div class="hud" id="hud">
-      <div class="row"><span class="k">FPS</span> <span class="v" id="fps">--</span></div>
-      <div class="row"><span class="k">Particles</span> <span class="dim" id="particles">100000</span></div>
-      <div class="row"><span class="k">Res</span> <span class="dim" id="res">--</span></div>
-      <div class="row"><span class="k">DPR</span> <span class="dim" id="dpr">--</span></div>
-      <div class="row"><span class="k">RenderScale</span> <span class="dim" id="rscale">--</span></div>
-      <div class="row"><span class="k">Quality</span> <span class="w" id="quality">--</span></div>
-      <div class="row"><span class="k">Auto</span> <span class="dim" id="auto">ON</span></div>
+    <div id="canvas-container"></div>
 
-      <div class="hr"></div>
-
-      <div class="row"><span class="k">Shape</span> <span class="dim" id="shape">Sphere</span></div>
-      <div class="row"><span class="k">ShapeID</span> <span class="dim" id="shapeId">0</span></div>
-      <div class="row"><span class="k">Mix</span> <span class="w" id="mix">0.00</span></div>
-      <div class="row"><span class="k">Time</span> <span class="dim" id="time">0.00</span></div>
-
-      <div class="hr"></div>
-
-      <div class="row"><span class="k">Bloom</span> <span class="dim" id="bloom">--</span></div>
-      <div class="row"><span class="k">Cam</span> <span class="dim" id="cam">--</span></div>
-    </div>
-
-    <div class="help">
-      <b style="color: rgba(6,182,212,.95);">交互：</b>
-      点击空白处切换形状（镜头推进/拉远 + 震动 + bloom 脉冲）；
-      <span style="color: rgba(251,191,36,.92);">Space</span> 超强模式；
-      <span style="color: rgba(52,211,153,.95);">1/2/3/4</span> 直切形状；
-      <span style="color: rgba(232,236,255,.75);">A</span> 开关 Autoplay。
-      <span style="opacity:.75;">（100k 粒子 GPU-only + bloom，自适应性能）</span>
-    </div>
-
-    <div class="topbar">
-      <div class="nav">
-        <div class="brand">
-          <div class="logo" aria-hidden="true"></div>
-          <div>
-            <div class="name">Andy Wang</div>
-            <div class="tag">Quant Finance • Automation • Applied ML</div>
-          </div>
+    <div class="overlay">
+        <div class="hud-top">
+            <div>
+                <div class="glitch-title">ANDY WANG</div>
+                <div style="font-size: 0.8rem; letter-spacing: 2px; opacity: 0.7;">QUANTITATIVE ANALYSIS & DATA AUTOMATION</div>
+            </div>
+            <div class="system-metrics">
+                <div class="metric-row"><span class="metric-label">STATUS:</span> <span>ACTIVE_DEAL_MONITOR</span></div>
+                <div class="metric-row"><span class="metric-label">PARTICLES:</span> <span>100,000</span></div>
+                <div class="metric-row"><span class="metric-label">ENGINE:</span> <span>GLSL_GPU_PIPELINE</span></div>
+                <div class="metric-row"><span class="metric-label">LOCATION:</span> <span>TORONTO, CA</span></div>
+                <div id="fps-counter" class="metric-row"><span class="metric-label">FPS:</span> <span>60</span></div>
+            </div>
         </div>
 
-        <nav class="links" aria-label="Primary navigation">
-          <a href="#about">About</a>
-          <a href="#projects">Projects</a>
-          <a href="#experience">Experience</a>
-          <a href="#skills">Skills</a>
-          <a href="#contact">Contact</a>
-        </nav>
+        <div class="content-area">
+            <div class="profile-card">
+                <h2>PROFESSIONAL SUMMARY</h2>
+                <p>Master of Financial Risk Management (Rotman) & Finance/Economics Specialist. [cite_start]Dedicated to excellence in financial quantitative analysis and process automation[cite: 14, 17].</p>
+                
+                <h2>CORE CAPABILITIES</h2>
+                [cite_start]<p>Python (Pandas, Numpy, Matplotlib), Alteryx, SQL, LangChain/RAG, Financial Risk Analysis[cite: 6, 7, 38].</p>
 
-        <div class="actions">
-          <a class="btn" href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noreferrer">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M4 4h16v16H4V4Z" stroke="currentColor" stroke-width="2"/>
-              <path d="M8 11v7M8 8v.01M11 11v7M11 14.5c.4-1 1.2-2 3-2 2 0 3 1.2 3 3.6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            LinkedIn
-          </a>
-          <a class="btn primary" href="resume.pdf" target="_blank" rel="noreferrer">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 3h7l3 3v15a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="2"/>
-              <path d="M14 3v3a3 3 0 0 0 3 3h3" stroke="currentColor" stroke-width="2"/>
-              <path d="M8 12h8M8 16h8" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            Resume
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <main class="wrap" id="main">
-      <header class="hero">
-        <div class="grid">
-          <div class="card">
-            <h1 class="glitch" data-text="Quant desk aesthetics. GPU morph engine.">Quant desk aesthetics. GPU morph engine.</h1>
-
-            <div class="sub">
-              <span class="pill"><span class="dot"></span> applying for quant / MFE / financial math programs</span>
-              <span class="pill">100k GPU particles</span>
-              <span class="pill">Three.js • GLSL • GSAP</span>
-            </div>
-
-            <p>
-              这是一个“Wall Street / quant desk”取向的签名 demo：<strong>克制霓虹 + 指标 HUD + 可解释性能</strong>。
-              粒子位置与形状变换全部在 GPU shader 中完成（simplex noise 扰动 + bloom 发光），支持键盘直切形状、自动演示和性能自适应。
-            </p>
-
-            <div class="cta">
-              <a class="btn primary" href="#projects">See projects</a>
-              <a class="btn" href="#contact">Contact</a>
-            </div>
-
-            <div class="callout">
-              <b>Tip：</b>Space 的 “超强模式”是给评审/面试官演示用的，一秒钟让人记住你。
-            </div>
-          </div>
-
-          <aside class="terminal" aria-label="Quick facts terminal">
-            <div class="term-top">
-              <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
-              <span class="term-title">~/demo</span>
-            </div>
-            <div class="term-body">
-              <div><span class="k">keys</span>: <span class="v">1/2/3/4</span> shape • <span class="w">Space</span> overdrive • <span class="v">A</span> autoplay</div>
-              <div><span class="k">compute</span>: <span class="w">GPU-only</span> (no CPU positions)</div>
-              <div><span class="k">fx</span>: <span class="v">bloom</span> + <span class="v">shake</span> + <span class="v">camera punch</span></div>
-              <div style="margin-top:10px;">
-                <span class="k">click</span>: <span class="v">ignite</span> • <span class="k">move</span>: <span class="v">steer</span><span class="blink" aria-hidden="true"></span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </header>
-
-      <section id="about">
-        <div class="section-title">
-          <h2>About</h2>
-          <div class="hint">建议换成你自己的“quant narrative”。</div>
-        </div>
-        <div class="card">
-          <p style="margin:0;">
-            这里建议写：主线（概率/随机过程/数值方法）→ 你做过什么（自动化/风控/ML）→ 结果（速度、稳定性、规模）。
-          </p>
-          <div class="badges">
-            <span class="badge">Probability</span>
-            <span class="badge">Stochastic Processes</span>
-            <span class="badge">Numerical Methods</span>
-            <span class="badge">Automation</span>
-            <span class="badge">Applied ML</span>
-          </div>
-        </div>
-      </section>
-
-      <section id="projects">
-        <div class="section-title">
-          <h2>Projects</h2>
-          <div class="hint">Problem → Method → Result</div>
-        </div>
-        <div class="two">
-          <div class="item">
-            <div class="top">
-              <div>
-                <div class="title">LLM/RAG Loan Agreement Review Copilot</div>
-                <div class="meta">RAG • evaluation • workflow automation</div>
-              </div>
-              <div class="meta">2024</div>
-            </div>
-            <ul class="clean">
-              <li><b>Impact:</b> 300 页 review → 1–2 小时；关键条款提取更快更稳。</li>
-              <li><b>Method:</b> Retrieval + prompt system + evaluation loop.</li>
-              <li><b>Signal:</b> 建议挂一份 sanitized writeup（架构 + 指标）。</li>
-            </ul>
-            <div class="badges">
-              <span class="badge good">measured impact</span>
-              <span class="badge">RAG</span>
-              <span class="badge">eval</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="top">
-              <div>
-                <div class="title">Liquidity Data Automation Suite</div>
-                <div class="meta">Python • validation • reconciliation • dashboards</div>
-              </div>
-              <div class="meta">2024–Now</div>
-            </div>
-            <ul class="clean">
-              <li><b>Impact:</b> 日常检查/调整自动化，降低手工错误 + 提升周转速度。</li>
-              <li><b>Method:</b> task-based architecture + logging/QA + dashboards。</li>
-              <li><b>Signal:</b> 量化评审喜欢“工程可信度 + 可复现”。</li>
-            </ul>
-            <div class="badges">
-              <span class="badge good">production-grade</span>
-              <span class="badge">pipelines</span>
-              <span class="badge">QA</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="experience">
-        <div class="section-title">
-          <h2>Experience</h2>
-          <div class="hint">每段 3 bullets，突出规模/约束/指标。</div>
-        </div>
-        <div class="card">
-          <div class="list">
-            <div class="item">
-              <div class="top">
-                <div>
-                  <div class="title">Scotiabank — Data Process Automation (Liquidity)</div>
-                  <div class="meta">Toronto • 2024–Present</div>
+                <div class="experience-list">
+                    <h2>SELECTED EXPERIENCE</h2>
+                    <div class="exp-item">
+                        <div class="exp-title">Manager, Data Process Automation</div>
+                        <div class="exp-company">Scotiabank | 2024 - Present</div>
+                        [cite_start]<p>Leading Python automation for daily data validation and SFT adjustments[cite: 21, 24].</p>
+                    </div>
+                    <div class="exp-item">
+                        <div class="exp-title">Investment Risk Analyst</div>
+                        <div class="exp-company">Ontario Teachers' Pension Plan</div>
+                        [cite_start]<p>Developed LLM-based credit review tool using GPT-4 & RAG, achieving 99% accuracy[cite: 34, 38, 39].</p>
+                    </div>
                 </div>
-                <div class="meta">impact</div>
-              </div>
-              <ul class="clean">
-                <li>Built end-to-end automation for daily liquidity checks and adjustments.</li>
-                <li>Improved reliability via validation, reconciliation, and decision-grade outputs.</li>
-                <li>Designed for reproducibility and controlled operational constraints.</li>
-              </ul>
             </div>
-          </div>
-          <div class="callout">
-            <b>加分项：</b>放一个“系统设计 PDF”（错误处理、测试策略、数据契约）+ 一个小型 demo repo。
-          </div>
-        </div>
-      </section>
+            <div></div> </div>
 
-      <section id="skills">
-        <div class="section-title">
-          <h2>Skills</h2>
-          <div class="hint">把“会”变成“做过什么”。</div>
-        </div>
-        <div class="two">
-          <div class="item">
-            <div class="title">Technical</div>
-            <div class="badges">
-              <span class="badge">Python</span>
-              <span class="badge">NumPy / pandas</span>
-              <span class="badge">SQL</span>
-              <span class="badge">Streamlit</span>
-              <span class="badge">Three.js</span>
-              <span class="badge">GLSL</span>
-              <span class="badge">GSAP</span>
+        <div class="hud-bottom">
+            <div class="controls">
+                <button class="btn-morph" onclick="morphTo(0)">SPHERE_PROJECTOR</button>
+                <button class="btn-morph" onclick="morphTo(1)">TORUS_DATA_LOOP</button>
+                <button class="btn-morph" onclick="morphTo(2)">NOISE_CLOUD_ENTROPY</button>
+                <button class="btn-morph" onclick="morphTo(3)">CUBE_BLOCKCHAIN</button>
             </div>
-          </div>
-          <div class="item">
-            <div class="title">Mathematical</div>
-            <div class="badges">
-              <span class="badge">Probability</span>
-              <span class="badge">Stochastic Processes</span>
-              <span class="badge">Optimization</span>
-              <span class="badge">Time Series</span>
-              <span class="badge">Numerical Methods</span>
-            </div>
-          </div>
         </div>
-      </section>
-
-      <section id="contact">
-        <div class="section-title">
-          <h2>Contact</h2>
-          <div class="hint">越少步骤越好。</div>
-        </div>
-        <div class="card">
-          <p style="margin:0;">
-            Email: <a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a> &nbsp;•&nbsp;
-            LinkedIn: <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noreferrer">andyzianwang</a>
-          </p>
-        </div>
-      </section>
-
-      <footer>
-        <div>© <span id="year"></span> Andy Wang</div>
-        <div style="opacity:.85;">Single-file • GPU morph + bloom + camera punch + HUD + autoplay + adaptive perf</div>
-      </footer>
-    </main>
-  </div>
-
-  <script type="module">
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-    import { EffectComposer } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js";
-    import { RenderPass } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/RenderPass.js";
-    import { UnrealBloomPass } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js";
-
-    // ===== Config =====
-    const N = 100000;
-    const canvas = document.getElementById("bg");
-    const shakeRoot = document.getElementById("shakeRoot");
-
-    const HUD = {
-      fps: document.getElementById("fps"),
-      particles: document.getElementById("particles"),
-      res: document.getElementById("res"),
-      dpr: document.getElementById("dpr"),
-      rscale: document.getElementById("rscale"),
-      quality: document.getElementById("quality"),
-      auto: document.getElementById("auto"),
-      shape: document.getElementById("shape"),
-      shapeId: document.getElementById("shapeId"),
-      mix: document.getElementById("mix"),
-      time: document.getElementById("time"),
-      bloom: document.getElementById("bloom"),
-      cam: document.getElementById("cam"),
-    };
-
-    const SHAPES = ["Sphere", "Torus", "NoiseCloud", "Cube"];
-    const SHAPE_ID = { Sphere: 0, Torus: 1, NoiseCloud: 2, Cube: 3 };
-
-    // ===== Quality ladder (adaptive) =====
-    // level: 0 low, 1 mid, 2 high
-    const QUALITY = [
-      { name: "LOW",  dprCap: 1.0, pointSize: 22.0, bloomStrength: 0.95, bloomRadius: 0.40, bloomThreshold: 0.12 },
-      { name: "MID",  dprCap: 1.5, pointSize: 24.0, bloomStrength: 1.10, bloomRadius: 0.46, bloomThreshold: 0.11 },
-      { name: "HIGH", dprCap: 2.0, pointSize: 28.0, bloomStrength: 1.18, bloomRadius: 0.48, bloomThreshold: 0.11 },
-    ];
-    const perf = {
-      level: 2,
-      cooldown: 0,
-      fpsAvg: 60,
-      fpsSamples: [],
-    };
-
-    // ===== Renderer =====
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: false,
-      alpha: true,
-      powerPreference: "high-performance",
-    });
-
-    function getDPR(){
-      const cap = QUALITY[perf.level].dprCap;
-      return Math.min(window.devicePixelRatio || 1, cap);
-    }
-
-    renderer.setPixelRatio(getDPR());
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x050610, 0);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
-
-    // ===== Scene / Camera =====
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 160);
-    const camBase = { x: 0, y: 0, z: 18 };
-    camera.position.set(camBase.x, camBase.y, camBase.z);
-
-    const group = new THREE.Group();
-    scene.add(group);
-
-    // ===== Geometry (no CPU positions used) =====
-    const geom = new THREE.BufferGeometry();
-    const positions = new Float32Array(N * 3); // placeholder only
-    const aIndex = new Float32Array(N);
-    const aSeed = new Float32Array(N * 3);
-
-    for (let i = 0; i < N; i++) {
-      aIndex[i] = i;
-      aSeed[i * 3 + 0] = Math.random();
-      aSeed[i * 3 + 1] = Math.random();
-      aSeed[i * 3 + 2] = Math.random();
-    }
-    geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geom.setAttribute("aIndex", new THREE.BufferAttribute(aIndex, 1));
-    geom.setAttribute("aSeed", new THREE.BufferAttribute(aSeed, 3));
-
-    // ===== Shaders =====
-    const vertexShader = /* glsl */`
-      precision highp float;
-
-      attribute float aIndex;
-      attribute vec3 aSeed;
-
-      uniform float uTime;
-      uniform float uMix;
-      uniform float uShapeA;
-      uniform float uShapeB;
-
-      uniform float uRadius;
-      uniform float uTorusR;
-      uniform float uTorusr;
-      uniform float uNoiseAmp;
-      uniform float uPointSize;
-
-      varying float vGlow;
-      varying vec3 vCol;
-
-      // 3D simplex noise (Ashima)
-      vec3 mod289(vec3 x){ return x - floor(x*(1.0/289.0))*289.0; }
-      vec4 mod289(vec4 x){ return x - floor(x*(1.0/289.0))*289.0; }
-      vec4 permute(vec4 x){ return mod289(((x*34.0)+1.0)*x); }
-      vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314*r; }
-
-      float snoise(vec3 v){
-        const vec2  C = vec2(1.0/6.0, 1.0/3.0);
-        const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
-
-        vec3 i = floor(v + dot(v, C.yyy));
-        vec3 x0 = v - i + dot(i, C.xxx);
-
-        vec3 g = step(x0.yzx, x0.xyz);
-        vec3 l = 1.0 - g;
-        vec3 i1 = min(g.xyz, l.zxy);
-        vec3 i2 = max(g.xyz, l.zxy);
-
-        vec3 x1 = x0 - i1 + C.xxx;
-        vec3 x2 = x0 - i2 + C.yyy;
-        vec3 x3 = x0 - D.yyy;
-
-        i = mod289(i);
-        vec4 p = permute(permute(permute(
-            i.z + vec4(0.0, i1.z, i2.z, 1.0))
-          + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-          + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-
-        float n_ = 1.0/7.0;
-        vec3  ns = n_*D.wyz - D.xzx;
-
-        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
-
-        vec4 x_ = floor(j * ns.z);
-        vec4 y_ = floor(j - 7.0 * x_);
-
-        vec4 x = x_ * ns.x + ns.yyyy;
-        vec4 y = y_ * ns.x + ns.yyyy;
-        vec4 h = 1.0 - abs(x) - abs(y);
-
-        vec4 b0 = vec4(x.xy, y.xy);
-        vec4 b1 = vec4(x.zw, y.zw);
-
-        vec4 s0 = floor(b0)*2.0 + 1.0;
-        vec4 s1 = floor(b1)*2.0 + 1.0;
-        vec4 sh = -step(h, vec4(0.0));
-
-        vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
-        vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
-
-        vec3 p0 = vec3(a0.xy, h.x);
-        vec3 p1 = vec3(a0.zw, h.y);
-        vec3 p2 = vec3(a1.xy, h.z);
-        vec3 p3 = vec3(a1.zw, h.w);
-
-        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
-        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-
-        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
-        m = m*m;
-
-        return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
-      }
-
-      vec2 uvFromIndex(float idx, vec3 seed){
-        float u = fract(seed.x + idx * 0.61803398875);
-        float v = fract(seed.y + idx * 0.38196601125);
-        return vec2(u, v);
-      }
-
-      vec3 shapePos(float shapeId, float idx, vec3 seed){
-        vec2 uv = uvFromIndex(idx, seed);
-        float u = uv.x;
-        float v = uv.y;
-
-        if (shapeId < 0.5){
-          float z = 1.0 - 2.0 * u;
-          float r = sqrt(max(1.0 - z*z, 0.0));
-          float theta = 6.28318530718 * v;
-          return vec3(r*cos(theta), r*sin(theta), z) * uRadius;
-        }
-        if (shapeId < 1.5){
-          float a = 6.28318530718 * u;
-          float b = 6.28318530718 * v;
-          float R = uTorusR;
-          float r = uTorusr;
-          float x = (R + r*cos(b)) * cos(a);
-          float y = (R + r*cos(b)) * sin(a);
-          float z = r * sin(b);
-          return vec3(x,y,z);
-        }
-        if (shapeId < 2.5){
-          vec3 base = (seed * 2.0 - 1.0) * (uRadius * 1.05);
-          float n = snoise(base * 0.55 + vec3(0.0, uTime*0.18, uTime*0.12));
-          vec3 dir = normalize(base + 0.0001);
-          return dir * (uRadius * (0.25 + 0.85*abs(n))) + base * 0.25;
-        }
-        return (seed * 2.0 - 1.0) * (uRadius * 0.92);
-      }
-
-      mat2 rot(float a){
-        float s = sin(a), c = cos(a);
-        return mat2(c,-s,s,c);
-      }
-
-      void main(){
-        float idx = aIndex;
-        vec3 seed = aSeed;
-
-        vec3 pA = shapePos(uShapeA, idx, seed);
-        vec3 pB = shapePos(uShapeB, idx, seed);
-
-        float t = smoothstep(0.0, 1.0, uMix);
-        vec3 p = mix(pA, pB, t);
-
-        float n1 = snoise(p * 0.35 + vec3(uTime*0.10, uTime*0.12, uTime*0.08));
-        float n2 = snoise(p * 0.60 + vec3(uTime*0.18, 0.0, uTime*0.14));
-        float n3 = snoise(p * 1.10 + vec3(0.0, uTime*0.20, uTime*0.05));
-
-        vec3 wobble = vec3(n1, n2, n3) * uNoiseAmp;
-
-        p.xy = rot(0.12 * sin(uTime*0.35) + 0.05*n2) * p.xy;
-        p.xz = rot(0.08 * cos(uTime*0.28) + 0.04*n1) * p.xz;
-
-        p += wobble;
-
-        vec4 mv = modelViewMatrix * vec4(p, 1.0);
-        gl_Position = projectionMatrix * mv;
-
-        float dist = max(0.001, -mv.z);
-        gl_PointSize = uPointSize * (1.0 / dist) * (0.85 + 0.28 * abs(n1));
-
-        float colorT = 0.5 + 0.5*sin(uTime*0.12 + seed.z*6.2831);
-        vCol = mix(vec3(0.55, 0.32, 1.0), vec3(0.06, 0.92, 0.98), colorT);
-        vGlow = 0.55 + 0.45 * abs(n2);
-      }
-    `;
-
-    const fragmentShader = /* glsl */`
-      precision highp float;
-      varying float vGlow;
-      varying vec3 vCol;
-
-      void main(){
-        vec2 uv = gl_PointCoord.xy * 2.0 - 1.0;
-        float r = dot(uv, uv);
-        if (r > 1.0) discard;
-
-        float core = smoothstep(0.12, 0.0, r);
-        float halo = smoothstep(1.0, 0.0, r);
-        float alpha = (0.16 * halo + 0.90 * core) * (0.60 + 0.40*vGlow);
-
-        vec3 col = vCol * (1.25 + 1.90*core) * (0.90 + 0.30*halo);
-        gl_FragColor = vec4(col, alpha);
-      }
-    `;
-
-    const uniforms = {
-      uTime: { value: 0 },
-      uMix: { value: 0 },
-      uShapeA: { value: SHAPE_ID.Sphere },
-      uShapeB: { value: SHAPE_ID.Torus },
-      uRadius: { value: 6.2 },
-      uTorusR: { value: 4.2 },
-      uTorusr: { value: 1.55 },
-      uNoiseAmp: { value: 0.78 },
-      uPointSize: { value: QUALITY[perf.level].pointSize },
-    };
-
-    const material = new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader,
-      fragmentShader,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
-
-    const points = new THREE.Points(geom, material);
-    group.add(points);
-
-    // ===== Postprocessing (Bloom) =====
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      QUALITY[perf.level].bloomStrength,
-      QUALITY[perf.level].bloomRadius,
-      QUALITY[perf.level].bloomThreshold
-    );
-    composer.addPass(bloomPass);
-
-    // ===== State =====
-    let shapeIndex = 0;
-
-    const mouse = { x: 0, y: 0 };
-    const target = { x: 0, y: 0 };
-    const spin = { vx: 0, vy: 0 };
-
-    // autoplay (default ON)
-    const auto = {
-      enabled: true,
-      interval: 6.0,     // seconds
-      nextAt: 3.0,       // first trigger
-      pauseUntil: 0.0,   // when user interacts, pause
-      pauseSeconds: 14.0,
-    };
-
-    function updateHUD(){
-      HUD.particles.textContent = String(N);
-
-      const dpr = getDPR();
-      HUD.dpr.textContent = dpr.toFixed(2);
-      HUD.rscale.textContent = `${QUALITY[perf.level].dprCap.toFixed(1)} cap`;
-      HUD.res.textContent = `${Math.floor(window.innerWidth*dpr)}×${Math.floor(window.innerHeight*dpr)}`;
-
-      HUD.quality.textContent = QUALITY[perf.level].name;
-      HUD.auto.textContent = auto.enabled ? "ON" : "OFF";
-
-      HUD.shape.textContent = SHAPES[shapeIndex];
-      HUD.shapeId.textContent = String(SHAPE_ID[SHAPES[shapeIndex]]);
-      HUD.mix.textContent = uniforms.uMix.value.toFixed(2);
-      HUD.time.textContent = uniforms.uTime.value.toFixed(2);
-
-      HUD.bloom.textContent = `${bloomPass.strength.toFixed(2)} / ${bloomPass.radius.toFixed(2)} / ${bloomPass.threshold.toFixed(2)}`;
-
-      const p = camera.position;
-      HUD.cam.textContent = `${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}`;
-    }
-
-    // ===== Mouse steer =====
-    window.addEventListener("mousemove", (e) => {
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = (e.clientY / window.innerHeight) * 2 - 1;
-      target.x = nx;
-      target.y = ny;
-    }, { passive: true });
-
-    // ===== FX helpers =====
-    function userInteracted(){
-      auto.pauseUntil = uniforms.uTime.value + auto.pauseSeconds;
-    }
-
-    function screenShake(intensity = 10, duration = 0.35){
-      gsap.fromTo(shakeRoot,
-        { x: 0, y: 0 },
-        {
-          x: () => gsap.utils.random(-intensity, intensity),
-          y: () => gsap.utils.random(-intensity, intensity),
-          duration: duration / 10,
-          ease: "none",
-          repeat: 9,
-          yoyo: true,
-          onComplete: () => gsap.to(shakeRoot, { x: 0, y: 0, duration: 0.12, ease: "power2.out" })
-        }
-      );
-    }
-
-    function cameraPunch(superMode=false){
-      const z0 = 18;
-      const inAmt  = superMode ? 6.2 : 4.0;
-      const outAmt = superMode ? 2.0 : 1.1;
-
-      const punchIn = z0 - inAmt;
-      const punchOut = z0 + outAmt;
-
-      gsap.timeline()
-        .to(camBase, { z: punchIn, duration: superMode ? 0.14 : 0.18, ease: "power3.out" }, 0)
-        .to(camBase, { z: punchOut, duration: superMode ? 0.32 : 0.38, ease: "power2.out" }, superMode ? 0.14 : 0.18)
-        .to(camBase, { z: z0, duration: superMode ? 0.62 : 0.55, ease: "elastic.out(1, 0.35)" }, superMode ? 0.42 : 0.56);
-    }
-
-    function bloomPulse(superMode=false){
-      const baseS = QUALITY[perf.level].bloomStrength;
-      const baseR = QUALITY[perf.level].bloomRadius;
-      const baseT = QUALITY[perf.level].bloomThreshold;
-
-      const peakS = superMode ? Math.min(2.15, baseS + 1.15) : Math.min(1.80, baseS + 0.60);
-      const peakR = superMode ? Math.min(0.70, baseR + 0.22) : Math.min(0.62, baseR + 0.14);
-      const peakT = superMode ? Math.max(0.03, baseT - 0.07) : Math.max(0.05, baseT - 0.06);
-
-      gsap.timeline()
-        .to(bloomPass, { strength: peakS, duration: 0.18, ease: "power2.out" }, 0)
-        .to(bloomPass, { radius: peakR, duration: 0.18, ease: "power2.out" }, 0)
-        .to(bloomPass, { threshold: peakT, duration: 0.18, ease: "power2.out" }, 0)
-        .to(bloomPass, { strength: baseS, duration: 0.62, ease: "power2.inOut" }, 0.20)
-        .to(bloomPass, { radius: baseR, duration: 0.62, ease: "power2.inOut" }, 0.20)
-        .to(bloomPass, { threshold: baseT, duration: 0.62, ease: "power2.inOut" }, 0.20);
-    }
-
-    function spinKick(superMode=false){
-      spin.vx += gsap.utils.random(-0.06, 0.06) * (superMode ? 1.8 : 1.0);
-      spin.vy += gsap.utils.random(0.08, 0.16) * (superMode ? 2.0 : 1.0);
-    }
-
-    function microTitlePulse(){
-      const title = document.querySelector(".glitch");
-      gsap.fromTo(title, { filter: "none" }, {
-        filter: "contrast(1.4) saturate(1.25)",
-        duration: 0.12,
-        yoyo: true,
-        repeat: 1,
-        ease: "power2.out"
-      });
-    }
-
-    // ===== Morph =====
-    let morphTL = null;
-
-    function morphTo(nextShapeId, superMode=false){
-      uniforms.uShapeB.value = nextShapeId;
-      uniforms.uMix.value = 0;
-
-      // kill previous morph to keep crisp interaction
-      if (morphTL) morphTL.kill();
-
-      const noiseBase = 0.78;
-      const noisePeak = superMode ? 2.15 : 1.55;
-
-      morphTL = gsap.timeline()
-        .to(uniforms.uNoiseAmp, { value: noisePeak, duration: superMode ? 0.18 : 0.22, ease: "power2.out" }, 0)
-        .to(uniforms.uMix, {
-          value: 1,
-          duration: superMode ? 0.88 : 1.05,
-          ease: superMode ? "power3.inOut" : "power2.inOut",
-        }, 0)
-        .to(uniforms.uNoiseAmp, { value: noiseBase, duration: superMode ? 0.75 : 0.85, ease: "power2.inOut" }, superMode ? 0.22 : 0.25)
-        .add(() => {
-          uniforms.uShapeA.value = nextShapeId;
-          uniforms.uMix.value = 0;
-        });
-    }
-
-    function triggerShape(index, { superMode=false, withFX=true, isUser=true } = {}){
-      if (index < 0 || index >= SHAPES.length) return;
-      if (isUser) userInteracted();
-
-      const nextName = SHAPES[index];
-      const nextId = SHAPE_ID[nextName];
-
-      // if already on target, still give a tiny punch on super
-      if (shapeIndex === index && !superMode) return;
-
-      shapeIndex = index;
-
-      if (withFX){
-        cameraPunch(superMode);
-        bloomPulse(superMode);
-        screenShake(superMode ? 14 : 10, superMode ? 0.42 : 0.35);
-        spinKick(superMode);
-        microTitlePulse();
-      }
-
-      morphTo(nextId, superMode);
-      updateHUD();
-    }
-
-    function triggerNext({ superMode=false, withFX=true, isUser=true } = {}){
-      const next = (shapeIndex + 1) % SHAPES.length;
-      triggerShape(next, { superMode, withFX, isUser });
-    }
-
-    // ===== Click =====
-    window.addEventListener("click", (e) => {
-      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
-      if (tag === "a" || tag === "button") return;
-      triggerNext({ superMode:false, withFX:true, isUser:true });
-    });
-
-    // ===== Keyboard =====
-    window.addEventListener("keydown", (e) => {
-      const k = e.key.toLowerCase();
-      if (k === "a"){
-        auto.enabled = !auto.enabled;
-        userInteracted();
-        updateHUD();
-        return;
-      }
-      if (k === " "){
-        e.preventDefault();
-        triggerNext({ superMode:true, withFX:true, isUser:true });
-        return;
-      }
-      if (k === "1") triggerShape(0, { superMode:false, withFX:true, isUser:true });
-      if (k === "2") triggerShape(1, { superMode:false, withFX:true, isUser:true });
-      if (k === "3") triggerShape(2, { superMode:false, withFX:true, isUser:true });
-      if (k === "4") triggerShape(3, { superMode:false, withFX:true, isUser:true });
-    });
-
-    // ===== Adaptive performance =====
-    function applyQuality(level){
-      perf.level = Math.max(0, Math.min(QUALITY.length - 1, level));
-
-      const q = QUALITY[perf.level];
-
-      // update DPR
-      renderer.setPixelRatio(getDPR());
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-      composer.setSize(window.innerWidth, window.innerHeight);
-      bloomPass.setSize(window.innerWidth, window.innerHeight);
-
-      // update point size + bloom baseline
-      uniforms.uPointSize.value = q.pointSize;
-      bloomPass.strength = q.bloomStrength;
-      bloomPass.radius = q.bloomRadius;
-      bloomPass.threshold = q.bloomThreshold;
-
-      updateHUD();
-    }
-
-    function considerPerfAdjust(fpsAvg){
-      // cooldown to avoid oscillation
-      if (perf.cooldown > 0) return;
-
-      // degrade
-      if (fpsAvg < 35 && perf.level > 0){
-        applyQuality(perf.level - 1);
-        perf.cooldown = 3.0;
-        return;
-      }
-      if (fpsAvg < 45 && perf.level > 0){
-        applyQuality(perf.level - 1);
-        perf.cooldown = 3.0;
-        return;
-      }
-
-      // upgrade (hysteresis: need really stable high fps)
-      if (fpsAvg > 57 && perf.level < 2){
-        applyQuality(perf.level + 1);
-        perf.cooldown = 4.0;
-        return;
-      }
-    }
-
-    // ===== FPS =====
-    let last = performance.now();
-    let frames = 0;
-    let fpsUpdateTimer = 0;
-
-    // ===== Animate =====
-    const clock = new THREE.Clock();
-
-    function animate(){
-      requestAnimationFrame(animate);
-      const dt = clock.getDelta();
-      uniforms.uTime.value += dt;
-
-      // autoplay
-      if (auto.enabled && uniforms.uTime.value > auto.pauseUntil && uniforms.uTime.value > auto.nextAt){
-        auto.nextAt = uniforms.uTime.value + auto.interval;
-        // autoplay uses gentler FX
-        triggerNext({ superMode:false, withFX:true, isUser:false });
-      }
-
-      // cooldown decay
-      perf.cooldown = Math.max(0, perf.cooldown - dt);
-
-      // smooth mouse
-      mouse.x += (target.x - mouse.x) * 0.06;
-      mouse.y += (target.y - mouse.y) * 0.06;
-
-      // camera base + mouse offsets
-      camera.position.x = camBase.x + mouse.x * 2.6;
-      camera.position.y = camBase.y - mouse.y * 1.7;
-      camera.position.z = camBase.z + (Math.abs(mouse.x) + Math.abs(mouse.y)) * 0.9;
-      camera.lookAt(0, 0, 0);
-
-      // inertial spin (kick + decay)
-      spin.vx *= 0.92;
-      spin.vy *= 0.92;
-
-      group.rotation.y += 0.0016 + mouse.x * 0.0007 + spin.vy;
-      group.rotation.x += 0.0011 - mouse.y * 0.0006 + spin.vx;
-
-      composer.render();
-
-      // FPS update (4x/sec)
-      frames++;
-      const now = performance.now();
-      if (now - last >= 250) {
-        const fps = Math.round((frames * 1000) / (now - last));
-        frames = 0;
-        last = now;
-
-        HUD.fps.textContent = String(fps);
-
-        // rolling average for adaptive perf
-        perf.fpsSamples.push(fps);
-        if (perf.fpsSamples.length > 12) perf.fpsSamples.shift();
-        const avg = perf.fpsSamples.reduce((a,b)=>a+b,0) / perf.fpsSamples.length;
-        perf.fpsAvg = avg;
-
-        fpsUpdateTimer += 0.25;
-        if (fpsUpdateTimer >= 1.0){
-          fpsUpdateTimer = 0;
-          considerPerfAdjust(avg);
+    </div>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+        uniform float uTime;
+        uniform float uMorphProgress;
+        uniform int uTargetShape;
+        uniform int uCurrentShape;
+        
+        attribute vec3 position0; // Sphere
+        attribute vec3 position1; // Torus
+        attribute vec3 position2; // Noise
+        attribute vec3 position3; // Cube
+
+        varying vec3 vColor;
+
+        // Simplex 3D Noise function
+        vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+        vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+        float snoise(vec3 v){ 
+            const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+            const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+            vec3 i  = floor(v + dot(v, C.yyy) );
+            vec3 x0 =   v - i + dot(i, C.xxx) ;
+            vec3 g = step(x0.yzx, x0.xyz);
+            vec3 l = 1.0 - g;
+            vec3 i1 = min( g.xyz, l.zxy );
+            vec3 i2 = max( g.xyz, l.zxy );
+            vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+            vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+            vec3 x3 = x0 - 1. + 3.0 * C.xxx;
+            i = mod(i, 289.0 ); 
+            vec4 p = permute( permute( permute( 
+                     i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                   + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
+                   + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+            float n_ = 1.0/7.0;
+            vec3  ns = n_ * D.wyz - D.xzx;
+            vec4 j = p - 49.0 * floor(p * ns.z *ns.z);
+            vec4 x_ = floor(j * ns.z);
+            vec4 y_ = floor(j - 7.0 * x_ );
+            vec4 x = x_ *ns.x + ns.yyyy;
+            vec4 y = y_ *ns.x + ns.yyyy;
+            vec4 h = 1.0 - abs(x) - abs(y);
+            vec4 b0 = vec4( x.xy, y.xy );
+            vec4 b1 = vec4( x.zw, y.zw );
+            vec4 s0 = floor(b0)*2.0 + 1.0;
+            vec4 s1 = floor(b1)*2.0 + 1.0;
+            vec4 sh = -step(h, vec4(0.0));
+            vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+            vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+            vec3 p0 = vec3(a0.xy,h.x);
+            vec3 p1 = vec3(a0.zw,h.y);
+            vec3 p2 = vec3(a1.xy,h.z);
+            vec3 p3 = vec3(a1.zw,h.w);
+            vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+            p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+            vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+            m = m * m;
+            return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
         }
 
-        updateHUD();
-      }
-    }
-    animate();
+        vec3 getPos(int id) {
+            if(id == 0) return position0;
+            if(id == 1) return position1;
+            if(id == 2) return position2;
+            return position3;
+        }
 
-    // ===== Resize =====
-    function onResize(){
-      const w = window.innerWidth, h = window.innerHeight;
-      renderer.setPixelRatio(getDPR());
-      renderer.setSize(w, h);
-      composer.setSize(w, h);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      bloomPass.setSize(w, h);
-      updateHUD();
-    }
-    window.addEventListener("resize", onResize);
+        void main() {
+            vec3 origin = getPos(uCurrentShape);
+            vec3 target = getPos(uTargetShape);
+            
+            vec3 pos = mix(origin, target, uMorphProgress);
+            
+            // Add noise displacement
+            float noise = snoise(pos * 0.5 + uTime * 0.2);
+            pos += normalize(pos) * noise * 0.15;
 
-    // ===== Init =====
-    document.getElementById("year").textContent = new Date().getFullYear();
-    applyQuality(perf.level);
-    updateHUD();
-  </script>
+            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+            gl_PointSize = (15.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+
+            // Color based on position and shape
+            vColor = mix(vec3(0.0, 0.95, 1.0), vec3(0.0, 0.4, 0.5), noise + 0.5);
+        }
+    </script>
+
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        varying vec3 vColor;
+        void main() {
+            float dist = distance(gl_PointCoord, vec2(0.5));
+            if(dist > 0.5) discard;
+            float alpha = 1.0 - smoothstep(0.4, 0.5, dist);
+            gl_FragColor = vec4(vColor, alpha * 0.8);
+        }
+    </script>
+
+    <script>
+        let scene, camera, renderer, particles, material;
+        let currentShapeIndex = 0;
+        const particleCount = 100000;
+
+        init();
+        animate();
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            const geometry = new THREE.BufferGeometry();
+            
+            // Generate Positions
+            const pos0 = new Float32Array(particleCount * 3); // Sphere
+            const pos1 = new Float32Array(particleCount * 3); // Torus
+            const pos2 = new Float32Array(particleCount * 3); // Noise Cloud
+            const pos3 = new Float32Array(particleCount * 3); // Cube
+
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                
+                // Sphere
+                const phi = Math.acos(-1 + (2 * i) / particleCount);
+                const theta = Math.sqrt(particleCount * Math.PI) * phi;
+                pos0[i3] = Math.cos(theta) * Math.sin(phi) * 2;
+                pos0[i3+1] = Math.sin(theta) * Math.sin(phi) * 2;
+                pos0[i3+2] = Math.cos(phi) * 2;
+
+                // Torus
+                const u = Math.random() * Math.PI * 2;
+                const v = Math.random() * Math.PI * 2;
+                const R = 2.0;
+                const r = 0.6;
+                pos1[i3] = (R + r * Math.cos(v)) * Math.cos(u);
+                pos1[i3+1] = (R + r * Math.cos(v)) * Math.sin(u);
+                pos1[i3+2] = r * Math.sin(v);
+
+                // Noise Cloud
+                pos2[i3] = (Math.random() - 0.5) * 6;
+                pos2[i3+1] = (Math.random() - 0.5) * 6;
+                pos2[i3+2] = (Math.random() - 0.5) * 6;
+
+                // Cube
+                pos3[i3] = (Math.random() - 0.5) * 3;
+                pos3[i3+1] = (Math.random() - 0.5) * 3;
+                pos3[i3+2] = (Math.random() - 0.5) * 3;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(pos0, 3));
+            geometry.setAttribute('position0', new THREE.BufferAttribute(pos0, 3));
+            geometry.setAttribute('position1', new THREE.BufferAttribute(pos1, 3));
+            geometry.setAttribute('position2', new THREE.BufferAttribute(pos2, 3));
+            geometry.setAttribute('position3', new THREE.BufferAttribute(pos3, 3));
+
+            material = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uMorphProgress: { value: 0 },
+                    uCurrentShape: { value: 0 },
+                    uTargetShape: { value: 0 }
+                },
+                vertexShader: document.getElementById('vertexShader').textContent,
+                fragmentShader: document.getElementById('fragmentShader').textContent,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('mousemove', onMouseMove);
+        }
+
+        function morphTo(index) {
+            if(index === currentShapeIndex) return;
+
+            // GSAP Sequence for Morphing
+            const tl = gsap.timeline();
+            
+            // 1. Zoom Out & Bloom Pulse Effect
+            tl.to(camera.position, { z: 8, duration: 0.4, ease: "power2.in" });
+            
+            // 2. Morph Progress
+            tl.to(material.uniforms.uMorphProgress, {
+                value: 1,
+                duration: 1.5,
+                ease: "expo.inOut",
+                onStart: () => {
+                    material.uniforms.uTargetShape.value = index;
+                },
+                onComplete: () => {
+                    material.uniforms.uCurrentShape.value = index;
+                    material.uniforms.uMorphProgress.value = 0;
+                    currentShapeIndex = index;
+                }
+            }, "-=0.2");
+
+            // 3. Zoom back in with inertia
+            tl.to(camera.position, { z: 5, duration: 1, ease: "elastic.out(1, 0.75)" });
+        }
+
+        function onMouseMove(e) {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+            gsap.to(particles.rotation, {
+                y: x * 0.5,
+                x: y * 0.5,
+                duration: 2,
+                ease: "power2.out"
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            material.uniforms.uTime.value += 0.01;
+            renderer.render(scene, camera);
+            
+            // FPS Update (Simulation)
+            if(Math.random() > 0.9) {
+                document.querySelector('#fps-counter span').innerText = Math.floor(60 - Math.random() * 2);
+            }
+        }
+    </script>
 </body>
 </html>
