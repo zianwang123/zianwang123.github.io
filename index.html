@@ -1,183 +1,868 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<!doctype html>
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Andy Zian Wang | Quantitative Finance</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        quant: {
-                            dark: '#0B1120',   /* Deep Navy */
-                            light: '#1e293b',
-                            accent: '#0ea5e9', /* Sky Blue */
-                            text: '#cbd5e1'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #0B1120; color: #cbd5e1; font-family: 'Inter', sans-serif; }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .tech-pill {
-            background: rgba(14, 165, 233, 0.1);
-            color: #7dd3fc;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            border: 1px solid rgba(14, 165, 233, 0.2);
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Andy Wang — Quant Finance | Automation, risk, and applied ML for finance." />
+  <meta name="theme-color" content="#0b0f19" />
+  <title>Andy Wang — Quant Finance</title>
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content="Andy Wang — Quant Finance" />
+  <meta property="og:description" content="Quant finance portfolio: automation, risk, applied ML, and projects." />
+  <meta property="og:type" content="website" />
+
+  <!-- Inline favicon -->
+  <link rel="icon" href='data:image/svg+xml;utf8,
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="%237c3aed"/>
+          <stop offset="1" stop-color="%2306b6d4"/>
+        </linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="14" fill="url(%23g)"/>
+      <path d="M18 40l7-10 6 7 8-12 7 10" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>' />
+
+  <style>
+    :root{
+      --bg:#0b0f19;
+      --panel:#0f172a;
+      --panel2:#0b1224;
+      --text:#e5e7eb;
+      --muted:#a3a3a3;
+      --line:rgba(255,255,255,0.10);
+      --brand:#7c3aed;
+      --brand2:#06b6d4;
+      --good:#34d399;
+      --shadow: 0 12px 34px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    [data-theme="light"]{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --panel2:#ffffff;
+      --text:#0b0f19;
+      --muted:#4b5563;
+      --line:rgba(0,0,0,0.10);
+      --shadow: 0 12px 34px rgba(0,0,0,.10);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(1200px 800px at 18% 10%, rgba(124,58,237,.20), transparent 60%),
+        radial-gradient(900px 600px at 80% 20%, rgba(6,182,212,.16), transparent 58%),
+        radial-gradient(700px 500px at 60% 90%, rgba(52,211,153,.10), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      letter-spacing: .1px;
+    }
+    a{ color: inherit; text-decoration:none; }
+    a:hover{ text-decoration: underline; text-underline-offset: 3px; }
+
+    .wrap{ max-width: 1120px; margin: 0 auto; padding: 26px 18px 90px; }
+
+    .skip{
+      position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip:focus{
+      left: 18px; top: 18px; width:auto; height:auto; padding: 10px 12px;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+      z-index: 9999;
+    }
+
+    /* Top bar */
+    .topbar{
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(10px);
+      background: color-mix(in oklab, var(--bg), transparent 35%);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      max-width:1120px; margin:0 auto; padding: 12px 18px;
+      gap: 14px;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; min-width: 260px; }
+    .logo{
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(6,182,212,.90));
+      box-shadow: 0 8px 22px rgba(124,58,237,.20);
+      position: relative; overflow: hidden;
+    }
+    .logo:after{
+      content:""; position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.60), transparent 40%);
+      transform: rotate(15deg); opacity:.35;
+    }
+    .brand .name{ font-weight: 900; letter-spacing: .2px; }
+    .brand .tag{ font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+    .links{
+      display:flex; align-items:center; justify-content:center;
+      gap: 10px; flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      opacity: .95;
+    }
+    .links a{
+      padding: 7px 10px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+    }
+    .links a:hover{
+      border-color: var(--line);
+      text-decoration: none;
+      background: color-mix(in oklab, var(--panel), transparent 20%);
+    }
+
+    .actions{ display:flex; gap:10px; align-items:center; justify-content:flex-end; min-width: 260px; }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      border:1px solid var(--line);
+      background: color-mix(in oklab, var(--panel), transparent 12%);
+      padding: 9px 12px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.12);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform 120ms ease;
+    }
+    .btn:hover{ transform: translateY(-1px); text-decoration:none; }
+    .btn:active{ transform: translateY(0); }
+    .btn.primary{
+      border-color: color-mix(in oklab, var(--brand), var(--line) 60%);
+      background: linear-gradient(135deg, rgba(124,58,237,.92), rgba(6,182,212,.82));
+      color: white;
+      font-weight: 800;
+    }
+    .btn svg{ width: 16px; height: 16px; }
+
+    /* Hero */
+    .hero{ padding: 34px 0 18px; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    @media (max-width: 920px){
+      .grid{ grid-template-columns: 1fr; }
+      .brand, .actions{ min-width:auto; }
+    }
+    .card{
+      background: color-mix(in oklab, var(--panel), transparent 6%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 18px;
+    }
+    .hero h1{
+      margin: 0 0 10px;
+      font-size: clamp(28px, 3.2vw, 44px);
+      line-height: 1.10;
+      letter-spacing: .2px;
+    }
+    .sub{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in oklab, var(--panel2), transparent 12%);
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 99px;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      box-shadow: 0 0 0 3px rgba(124,58,237,.15);
+    }
+    .hero p{
+      margin: 0 0 16px;
+      color: color-mix(in oklab, var(--text), var(--muted) 22%);
+      max-width: 78ch;
+      font-size: 15.5px;
+    }
+    .cta{ display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* Terminal */
+    .terminal{
+      font-family: var(--mono);
+      font-size: 12.8px;
+      background: color-mix(in oklab, #000, var(--panel) 70%);
+      border: 1px solid color-mix(in oklab, var(--line), rgba(124,58,237,.25) 30%);
+      border-radius: 16px;
+      padding: 14px;
+      overflow:hidden;
+      position: relative;
+    }
+    .term-top{ display:flex; gap:8px; align-items:center; margin-bottom: 10px; opacity: .9; }
+    .bubble{ width:10px; height:10px; border-radius:99px; background: rgba(255,255,255,.15); }
+    .term-title{ margin-left:auto; font-size: 11px; color: rgba(255,255,255,.70); }
+    .term-body{ color: rgba(255,255,255,.86); line-height: 1.6; }
+    .term-body .k{ color: rgba(6,182,212,.95); }
+    .term-body .v{ color: rgba(52,211,153,.95); }
+    .term-body .w{ color: rgba(251,191,36,.95); }
+    .blink{
+      display:inline-block; width: 9px; height: 14px;
+      background: rgba(255,255,255,.75); margin-left: 4px;
+      animation: blink 1.1s infinite;
+      transform: translateY(2px);
+    }
+    @keyframes blink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+    /* Sections */
+    section{ margin-top: 16px; }
+    .section-title{
+      display:flex; align-items:baseline; justify-content:space-between;
+      gap: 12px; padding: 0 2px;
+      margin: 18px 0 10px;
+    }
+    .section-title h2{
+      margin: 0;
+      font-size: 16px;
+      font-family: var(--mono);
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      color: color-mix(in oklab, var(--text), var(--muted) 25%);
+    }
+    .section-title .hint{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 920px){ .two{ grid-template-columns: 1fr; } }
+
+    .list{ display:flex; flex-direction:column; gap: 10px; }
+    .item{
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in oklab, var(--panel), transparent 6%);
+      padding: 14px;
+    }
+    .item .top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap: 12px;
+    }
+    .item .title{ font-weight: 900; letter-spacing: .2px; }
+    .item .meta{
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 12.5px;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .item p{ margin: 8px 0 0; color: color-mix(in oklab, var(--text), var(--muted) 18%); font-size: 14.5px; }
+    ul.clean{ margin: 10px 0 0 18px; padding:0; color: color-mix(in oklab, var(--text), var(--muted) 18%); }
+    ul.clean li{ margin: 6px 0; }
+
+    .badges{ margin-top: 10px; display:flex; flex-wrap:wrap; gap: 8px; }
+    .badge{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: color-mix(in oklab, var(--text), var(--muted) 20%);
+      background: color-mix(in oklab, var(--panel2), transparent 10%);
+    }
+    .badge.good{ border-color: color-mix(in oklab, var(--good), var(--line) 70%); }
+
+    .callout{
+      margin-top:12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px dashed var(--line);
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    footer{
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+
+    /* Reveal */
+    .reveal{ opacity: 0; transform: translateY(10px); transition: 600ms ease; }
+    .reveal.show{ opacity: 1; transform: translateY(0); }
+  </style>
 </head>
-<body class="antialiased selection:bg-quant-accent selection:text-quant-dark">
 
-    <nav class="fixed w-full z-50 top-0 start-0 border-b border-gray-800 bg-quant-dark/90 backdrop-blur-md">
-        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-            <span class="self-center text-xl font-bold whitespace-nowrap text-white">AZW<span class="text-quant-accent">.</span></span>
-            <div class="w-full md:block md:w-auto">
-                <ul class="font-medium flex p-4 md:p-0 mt-4 md:flex-row md:space-x-8 md:mt-0">
-                    <li><a href="#about" class="block py-2 px-3 text-white hover:text-quant-accent transition">About</a></li>
-                    <li><a href="#education" class="block py-2 px-3 text-quant-text hover:text-quant-accent transition">Education</a></li>
-                    <li><a href="#projects" class="block py-2 px-3 text-quant-text hover:text-quant-accent transition">Projects</a></li>
-                    <li><a href="#contact" class="block py-2 px-3 text-quant-accent border border-quant-accent rounded hover:bg-quant-accent hover:text-quant-dark transition px-4">Contact</a></li>
-                </ul>
-            </div>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <div class="topbar">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div class="name">Andy Wang</div>
+          <div class="tag">Manager @ Scotiabank • MFRM ’24 • Quant Finance</div>
         </div>
-    </nav>
+      </div>
 
-    <section id="about" class="min-h-screen flex items-center justify-center pt-16">
-        <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16 lg:px-12">
-            <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-white md:text-6xl lg:text-7xl">
-                Andy Zian Wang
-            </h1>
-            <p class="mb-8 text-lg font-normal text-gray-400 lg:text-xl sm:px-16 xl:px-48">
-                Aspiring Quantitative Researcher & Financial Engineer.<br>
-                Leveraging <span class="text-quant-accent">[Your Top Skill, e.g., Stochastic Calculus]</span> and <span class="text-quant-accent">[Your Coding Lang, e.g., C++]</span> to solve market problems.
+      <nav class="links" aria-label="Primary navigation">
+        <a href="#about">About</a>
+        <a href="#highlights">Highlights</a>
+        <a href="#projects">Projects</a>
+        <a href="#experience">Experience</a>
+        <a href="#education">Education</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="actions">
+        <button class="btn" id="themeBtn" type="button" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Theme
+        </button>
+
+        <!-- Put resume.pdf next to this HTML, or change href to your hosted resume -->
+        <a class="btn primary" href="resume.pdf" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 3h7l3 3v15a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M14 3v3a3 3 0 0 0 3 3h3" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 12h8M8 16h8" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Resume
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap" id="main">
+    <!-- HERO -->
+    <header class="hero">
+      <div class="grid">
+        <div class="card reveal">
+          <h1>Quant finance work that reads like production.</h1>
+
+          <div class="sub">
+            <span class="pill"><span class="dot"></span> applying for quant / financial engineering programs</span>
+            <span class="pill">Toronto • Canada</span>
+            <span class="pill">Python • Automation • Risk</span>
+          </div>
+
+          <p>
+            I build rigorous financial automation and applied ML tools with a focus on reproducibility,
+            evaluation, and decision-grade outputs. Recent work spans liquidity data automation at a major bank
+            and an LLM/RAG loan agreement review system that compressed multi-day review cycles into hours.
+          </p>
+
+          <div class="cta">
+            <a class="btn primary" href="#projects">See projects</a>
+            <a class="btn" href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noreferrer">LinkedIn</a>
+            <!-- Optional: set your GitHub -->
+            <a class="btn" href="#" id="githubBtn">GitHub</a>
+            <a class="btn" href="mailto:zianwang123@gmail.com">Email</a>
+          </div>
+
+          <div class="callout">
+            <b>Signal:</b> Admitted to the <span class="mono">M.S. Financial Mathematics</span> program at the University of Chicago.
+            <span class="mono">(+ MFRM from Rotman)</span>
+          </div>
+        </div>
+
+        <aside class="terminal reveal" aria-label="Quick facts terminal">
+          <div class="term-top">
+            <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+            <span class="term-title">~/profile</span>
+          </div>
+          <div class="term-body">
+            <div><span class="k">role</span>: <span class="v">Manager</span>, Data Process Automation</div>
+            <div><span class="k">domain</span>: <span class="v">liquidity</span> • <span class="v">funding</span> • <span class="v">credit risk</span></div>
+            <div><span class="k">tooling</span>: <span class="v">Python</span> • <span class="v">Alteryx</span> • <span class="v">Streamlit</span></div>
+            <div><span class="k">strength</span>: <span class="w">automation that survives real constraints</span></div>
+            <div style="margin-top:10px;">
+              <span class="k">north star</span>: <span class="v">quant research + engineering</span><span class="blink" aria-hidden="true"></span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <!-- ABOUT -->
+    <section id="about" class="reveal">
+      <div class="section-title">
+        <h2>About</h2>
+        <div class="hint">Admissions-friendly: clear, specific, proof-oriented.</div>
+      </div>
+      <div class="card">
+        <p style="margin:0;">
+          With a <b>Master of Financial Risk Management</b> from the Rotman School of Management and a
+          specialized <b>BCom in Finance & Economics</b> (focus in Data Science), I work at the intersection of
+          quantitative analysis and production-grade implementation. My recent work includes building Python automation
+          for daily liquidity validation and reconciliation, and designing an applied ML system (RAG + GPT-4) to
+          accelerate institutional contract review.
+        </p>
+        <div class="badges" aria-label="Highlights">
+          <span class="badge">Risk + Regulation</span>
+          <span class="badge">Data Process Automation</span>
+          <span class="badge">Applied ML (RAG)</span>
+          <span class="badge">Python Tooling</span>
+          <span class="badge">Reproducibility</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- HIGHLIGHTS -->
+    <section id="highlights" class="reveal">
+      <div class="section-title">
+        <h2>Highlights</h2>
+        <div class="hint">Fast scan: what reviewers remember.</div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <div class="item" style="margin:0;">
+            <div class="top">
+              <div>
+                <div class="title">LLM/RAG loan agreement review (OTPP)</div>
+                <div class="meta">LangChain • AzureOpenAI GPT-4 • GUI</div>
+              </div>
+              <div class="meta">2024</div>
+            </div>
+            <ul class="clean">
+              <li><b>99%</b> accuracy in key term identification; captured <b>95%+</b> of essential details.</li>
+              <li>Processed <b>15+ keywords</b> within <b>&lt; 1 minute</b> on ~2500-token sections; consistent over <b>5 active deals</b>.</li>
+              <li>Reduced review of <b>300-page</b> agreements from days to <b>1–2 hours</b>.</li>
+              <li>Initiated an in-house database to compare new vs historical deals for senior decision-makers.</li>
+            </ul>
+            <div class="badges">
+              <span class="badge good">impact</span>
+              <span class="badge">RAG</span>
+              <span class="badge">evaluation</span>
+              <span class="badge">workflow design</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="item" style="margin:0;">
+            <div class="top">
+              <div>
+                <div class="title">Liquidity automation (Scotiabank)</div>
+                <div class="meta">Python automation • Testing tools • Streamlit</div>
+              </div>
+              <div class="meta">2024–Now</div>
+            </div>
+            <ul class="clean">
+              <li>Built end-to-end automation for daily data checks and adjustments supporting liquidity report review.</li>
+              <li>Automated validation checks, SFT data generation, and SFT adjustments; developed Python testing tools.</li>
+              <li>Performed ME reconciliations between liquidity data and EGL across instruments (TRS, MBS, inventory, short sale).</li>
+              <li>Delivered internal dashboards using Streamlit for operational visibility.</li>
+            </ul>
+            <div class="badges">
+              <span class="badge good">production</span>
+              <span class="badge">data validation</span>
+              <span class="badge">reconciliation</span>
+              <span class="badge">dashboards</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="reveal">
+      <div class="section-title">
+        <h2>Selected projects</h2>
+        <div class="hint">Turn job work into “project artifacts” (links later).</div>
+      </div>
+
+      <div class="two">
+        <div class="list">
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Liquidity Data Automation Suite</div>
+                <div class="meta">Python • Validation • Adjustments • Testing</div>
+              </div>
+              <div class="meta">Scotiabank</div>
+            </div>
+            <p>
+              A reproducible automation system supporting daily liquidity workflows:
+              validation checks, adjustment pipelines, and reconciliation tooling.
             </p>
-            
-            <div class="flex flex-wrap justify-center gap-4 mb-8 opacity-80">
-                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">Python (Pandas/NumPy)</span>
-                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">C++</span>
-                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">Stochastic Calculus</span>
-                <span class="border border-gray-700 px-4 py-1 rounded-full text-sm">Econometrics</span>
+            <ul class="clean">
+              <li><b>Design:</b> modular tasks + reusable utilities; fail-fast validation and clear logs.</li>
+              <li><b>Reliability:</b> testing utilities and repeatable run artifacts.</li>
+              <li><b>Output:</b> cleaner operations and faster daily review cycles.</li>
+            </ul>
+            <div class="badges">
+              <span class="badge">Python</span>
+              <span class="badge">ETL</span>
+              <span class="badge">testing</span>
+              <span class="badge">operations</span>
             </div>
+            <p class="callout" style="margin-bottom:0;">
+              TODO: Add a public writeup (sanitized) explaining architecture + QA approach. One PDF is a huge signal.
+            </p>
+          </div>
 
-            <div class="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
-                <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 transition">
-                    <i class="fab fa-linkedin mr-2"></i> LinkedIn
-                </a>
-                <a href="#" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 bg-white transition">
-                    <i class="fas fa-file-alt mr-2"></i> Resume
-                </a>
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Loan Agreement Review Copilot</div>
+                <div class="meta">RAG • GUI • Keyword extraction + summaries</div>
+              </div>
+              <div class="meta">OTPP</div>
             </div>
+            <p>
+              A contract review tool built from scratch using LangChain and AzureOpenAI GPT-4 with retrieval,
+              optimized for speed and accuracy under real deal constraints.
+            </p>
+            <ul class="clean">
+              <li><b>Key metrics:</b> 99% term identification, 95%+ detail capture; 300 pages → 1–2 hours.</li>
+              <li><b>Roadmap:</b> fine-tuning, prompt compression, query rewrite, in-house deployment.</li>
+            </ul>
+            <div class="badges">
+              <span class="badge">LangChain</span>
+              <span class="badge">AzureOpenAI</span>
+              <span class="badge">RAG</span>
+              <span class="badge">evaluation</span>
+            </div>
+          </div>
         </div>
+
+        <div class="list">
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Tick Data Feature Engineering</div>
+                <div class="meta">Python • SQL • Indicators • Labels</div>
+              </div>
+              <div class="meta">Bohai Securities</div>
+            </div>
+            <p>
+              Extracted tick-level trading data and built evaluation features/labels used to support strategy selection
+              and product feature analysis.
+            </p>
+            <ul class="clean">
+              <li>Created securities trading activity indicators aligned with established criteria.</li>
+              <li>Generated labels supporting downstream strategy algorithms for a <b>100mm</b> portfolio.</li>
+              <li>Built Python/SQL pipelines for repo data retrieval and interest-rate analysis; visualized findings for senior management.</li>
+            </ul>
+            <div class="badges">
+              <span class="badge">market data</span>
+              <span class="badge">feature engineering</span>
+              <span class="badge">SQL</span>
+              <span class="badge">visualization</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Credit Analysis Workflow</div>
+                <div class="meta">Risk assessment • Lending decisions</div>
+              </div>
+              <div class="meta">Industrial Bank</div>
+            </div>
+            <p>
+              Supported retail credit analysis and loan approval by conducting financial risk assessments
+              and proposing lending/investment solutions.
+            </p>
+            <ul class="clean">
+              <li>Credit analysis & loan approval process for <b>20+</b> small corporate clients across industries.</li>
+              <li>Risk assessments for <b>20+</b> profiles; supported decisions for new/renewal/extension applications.</li>
+              <li>Provided value-added financial advice for <b>10+</b> clients.</li>
+            </ul>
+            <div class="badges">
+              <span class="badge">credit risk</span>
+              <span class="badge">financial analysis</span>
+              <span class="badge">decision support</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="education" class="py-16 bg-gray-900/50">
-        <div class="max-w-screen-xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-white mb-8 border-l-4 border-quant-accent pl-4">Education</h2>
-            <div class="glass-card p-8 rounded-xl">
-                <div class="flex justify-between items-start flex-wrap gap-4">
-                    <div>
-                        <h3 class="text-2xl font-bold text-white">[Your University Name]</h3>
-                        <p class="text-quant-accent text-lg">Bachelor of Science in Quantitative Finance / Math / CS</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-gray-300">Graduation: [Month Year]</p>
-                        <p class="text-gray-400 font-mono text-sm">GPA: [X.X]/4.0</p>
-                    </div>
-                </div>
-                <hr class="border-gray-700 my-6">
-                <div>
-                    <h4 class="font-bold text-gray-300 mb-3">Relevant Coursework</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="tech-pill">Real Analysis</span>
-                        <span class="tech-pill">Linear Algebra</span>
-                        <span class="tech-pill">Derivatives Pricing</span>
-                        <span class="tech-pill">Time Series Analysis</span>
-                        <span class="tech-pill">Data Structures & Algo</span>
-                    </div>
-                </div>
+    <!-- EXPERIENCE -->
+    <section id="experience" class="reveal">
+      <div class="section-title">
+        <h2>Experience</h2>
+        <div class="hint">Keep bullets sharp: impact + method + tools.</div>
+      </div>
+
+      <div class="card">
+        <div class="list">
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Scotiabank — Manager, Data Process Automation (Global Liquidity & Funding)</div>
+                <div class="meta">Toronto • Aug 2025 – Present</div>
+              </div>
+              <div class="meta">current</div>
             </div>
+            <ul class="clean">
+              <li>Python automation for daily data validation checks, SFT data generation and SFT adjustments.</li>
+              <li>ME reconciliations between liquidity data and EGL (Derivative TRS, MBS, inventory, short sale).</li>
+              <li>Built Python testing tools; delivered internal Streamlit dashboards.</li>
+            </ul>
+          </div>
+
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Scotiabank — Senior Analyst, Regulatory Financial Review & U.S Liquidity</div>
+                <div class="meta">Toronto • Aug 2024 – Jul 2025</div>
+              </div>
+              <div class="meta">1 year</div>
+            </div>
+            <ul class="clean">
+              <li>Developed and implemented a complete automation system from scratch using Python to streamline daily data checks and adjustment processes for liquidity report review.</li>
+            </ul>
+          </div>
+
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Ontario Teachers’ Pension Plan — Investment Risk Analyst (Credit & Capital Markets Risk)</div>
+                <div class="meta">Toronto • Jan 2024 – Mar 2024</div>
+              </div>
+              <div class="meta">3 months</div>
+            </div>
+            <ul class="clean">
+              <li>Designed and built a loan agreement review tool using LangChain + AzureOpenAI GPT-4 with RAG and a GUI.</li>
+              <li>Achieved 99% term identification accuracy and reduced 300-page review cycles to 1–2 hours.</li>
+              <li>Initiated a database for storing reviewed contracts for faster deal comparisons.</li>
+            </ul>
+          </div>
+
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Bohai Securities — Data Analyst</div>
+                <div class="meta">China • May 2021 – Aug 2021</div>
+              </div>
+              <div class="meta">4 months</div>
+            </div>
+            <ul class="clean">
+              <li>Extracted tick-level trading data; built activity indicators and evaluation labels supporting strategy selection for a 100mm portfolio.</li>
+              <li>Built Python/SQL retrieval for repo data and interest-rate analysis; delivered visualizations for senior leadership.</li>
+            </ul>
+          </div>
+
+          <div class="item">
+            <div class="top">
+              <div>
+                <div class="title">Industrial Bank — Retail Credit Analyst</div>
+                <div class="meta">China • May 2020 – Aug 2020</div>
+              </div>
+              <div class="meta">4 months</div>
+            </div>
+            <ul class="clean">
+              <li>Supported credit analysis and loan approvals for 20+ clients; performed risk assessments and provided lending strategy recommendations.</li>
+            </ul>
+          </div>
         </div>
+      </div>
     </section>
 
-    <section id="projects" class="py-16">
-        <div class="max-w-screen-xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-white mb-8 border-l-4 border-quant-accent pl-4">Technical Projects</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- EDUCATION -->
+    <section id="education" class="reveal">
+      <div class="section-title">
+        <h2>Education</h2>
+        <div class="hint">Quant programs care about rigor + trajectory.</div>
+      </div>
 
-                <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-quant-accent transition duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <i class="fas fa-chart-line text-2xl text-quant-accent"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2">[Project 1 Name]</h3>
-                    <p class="text-gray-400 text-sm mb-4">
-                        Example: "Options Pricing Model." Implemented Black-Scholes and Heston models in C++ to price European options. Calibrated volatility surface using market data.
-                    </p>
-                    <div class="flex gap-2">
-                        <span class="tech-pill">C++</span>
-                        <span class="tech-pill">Monte Carlo</span>
-                    </div>
-                </div>
-
-                <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-quant-accent transition duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <i class="fas fa-database text-2xl text-quant-accent"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2">[Project 2 Name]</h3>
-                    <p class="text-gray-400 text-sm mb-4">
-                        Example: "Statistical Arbitrage Strategy." Built a pairs trading strategy in Python using cointegration tests on S&P 500 constituents. Achieved Sharpe Ratio of 1.2 in backtest.
-                    </p>
-                    <div class="flex gap-2">
-                        <span class="tech-pill">Python</span>
-                        <span class="tech-pill">Pandas</span>
-                        <span class="tech-pill">Statsmodels</span>
-                    </div>
-                </div>
-
-                <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-quant-accent transition duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <i class="fas fa-microscope text-2xl text-quant-accent"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2">[Project 3 Name]</h3>
-                    <p class="text-gray-400 text-sm mb-4">
-                        Example: "Portfolio Optimization." Implemented Markowitz Mean-Variance optimization with constraints. Explored impact of shrinkage estimators on covariance matrices.
-                    </p>
-                    <div class="flex gap-2">
-                        <span class="tech-pill">Linear Algebra</span>
-                        <span class="tech-pill">Optimization</span>
-                    </div>
-                </div>
-
+      <div class="two">
+        <div class="card">
+          <div class="item" style="margin:0;">
+            <div class="top">
+              <div>
+                <div class="title">University of Toronto — Rotman School of Management</div>
+                <div class="meta">Master of Financial Risk Management (MFRM)</div>
+              </div>
+              <div class="meta">Aug 2023 – Jun 2024</div>
             </div>
+            <div class="badges">
+              <span class="badge">Risk</span>
+              <span class="badge">Quantitative finance</span>
+              <span class="badge">Modeling</span>
+            </div>
+          </div>
         </div>
+
+        <div class="card">
+          <div class="item" style="margin:0;">
+            <div class="top">
+              <div>
+                <div class="title">University of Toronto — Rotman School of Management</div>
+                <div class="meta">BCom, Finance & Economics Specialist • Focus in Data Science</div>
+              </div>
+              <div class="meta">Sep 2019 – Jun 2023</div>
+            </div>
+            <div class="badges">
+              <span class="badge">Finance</span>
+              <span class="badge">Economics</span>
+              <span class="badge">Data science</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <b>Honor:</b> Admission to the University of Chicago <span class="mono">M.S. in Financial Mathematics</span> program.
+      </div>
     </section>
 
-    <footer id="contact" class="bg-gray-900 border-t border-gray-800 mt-20">
-        <div class="w-full max-w-screen-xl mx-auto p-4 py-8">
-            <div class="sm:flex sm:items-center sm:justify-between">
-                <span class="text-sm text-gray-500">© 2025 Andy Zian Wang.</span>
-                <div class="flex mt-4 sm:justify-center sm:mt-0 space-x-6 text-gray-400">
-                    <a href="mailto:your.email@university.edu" class="hover:text-white transition">
-                        <i class="fas fa-envelope"></i> Email Me
-                    </a>
-                    <a href="https://www.linkedin.com/in/andyzianwang" class="hover:text-white transition">
-                        <i class="fab fa-linkedin"></i> LinkedIn
-                    </a>
-                </div>
+    <!-- SKILLS -->
+    <section id="skills" class="reveal">
+      <div class="section-title">
+        <h2>Skills</h2>
+        <div class="hint">Concrete tools + proof-of-work.</div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <div class="item" style="margin:0;">
+            <div class="title">Technical</div>
+            <div class="badges" style="margin-top:10px;">
+              <span class="badge">Python</span>
+              <span class="badge">pandas</span>
+              <span class="badge">NumPy</span>
+              <span class="badge">Matplotlib</span>
+              <span class="badge">Alteryx</span>
+              <span class="badge">SQL</span>
+              <span class="badge">Streamlit</span>
+              <span class="badge">LangChain</span>
+              <span class="badge">RAG</span>
             </div>
+            <p>
+              I like clean interfaces, repeatable runs, and evaluation that survives contact with real workflows.
+            </p>
+          </div>
         </div>
+
+        <div class="card">
+          <div class="item" style="margin:0;">
+            <div class="title">Languages</div>
+            <div class="badges" style="margin-top:10px;">
+              <span class="badge">English (Full Professional)</span>
+              <span class="badge">Chinese (Native/Bilingual)</span>
+            </div>
+            <p>
+              Comfortable writing concise technical documentation and presenting results to senior stakeholders.
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="reveal">
+      <div class="section-title">
+        <h2>Contact</h2>
+        <div class="hint">Make it frictionless.</div>
+      </div>
+
+      <div class="card">
+        <div class="two">
+          <div class="item" style="margin:0;">
+            <div class="title">Links</div>
+            <p style="margin-top:8px;">
+              <b>Email:</b> <a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a><br/>
+              <b>LinkedIn:</b> <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noreferrer">linkedin.com/in/andyzianwang</a><br/>
+              <b>GitHub:</b> <span id="githubText" style="color:var(--muted);">TODO: add your GitHub</span>
+            </p>
+            <div class="badges">
+              <span class="badge">Open to: quant master programs • internships • research roles</span>
+            </div>
+          </div>
+
+          <div class="item" style="margin:0;">
+            <div class="title">One-line pitch</div>
+            <p style="margin-top:8px;">
+              “I build decision-grade financial automation and applied ML tools—measured, reproducible, and production-aware.”
+            </p>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn primary" href="mailto:zianwang123@gmail.com">Email me</a>
+              <a class="btn" href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noreferrer">Message on LinkedIn</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>© <span id="year"></span> Andy Wang</div>
+      <div style="opacity:.85;">Single-file HTML • fast • no dependencies</div>
+    </footer>
+  </main>
+
+  <script>
+    // ====== Optional: set your GitHub once ======
+    const PROFILE = {
+      github: "" // e.g., "https://github.com/yourhandle"
+    };
+
+    // Theme toggle with persistence
+    const themeBtn = document.getElementById('themeBtn');
+    const saved = localStorage.getItem('theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+    themeBtn.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = (cur === 'light') ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+
+    // GitHub wiring (optional)
+    const githubText = document.getElementById("githubText");
+    const githubBtn = document.getElementById("githubBtn");
+    if (PROFILE.github && PROFILE.github.startsWith("http")) {
+      githubText.innerHTML = `<a href="${PROFILE.github}" target="_blank" rel="noreferrer">${PROFILE.github.replace(/^https?:\/\//,"")}</a>`;
+      if (githubBtn) {
+        githubBtn.href = PROFILE.github;
+        githubBtn.target = "_blank";
+        githubBtn.rel = "noreferrer";
+      }
+    } else {
+      if (githubBtn) githubBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("Add your GitHub URL in the PROFILE.github field in the HTML.");
+      });
+    }
+
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
