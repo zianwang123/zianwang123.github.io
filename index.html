@@ -3,183 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUANTUM PARTICLE TERMINAL v1.0</title>
+    <title>Andy Wang | Quantitative Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #050505; color: #00f2ff; font-family: 'Courier New', Courier, monospace; overflow: hidden; text-transform: uppercase; }
-        canvas { display: block; }
-
-        /* HUD Styling - Quant Sci-Fi */
-        #hud {
-            position: absolute; top: 20px; left: 20px; pointer-events: none;
-            border-left: 2px solid #00f2ff; padding-left: 15px; background: rgba(0,0,0,0.3);
-        }
-        .metric { margin-bottom: 5px; font-size: 10px; letter-spacing: 1px; }
-        .value { color: #fff; font-weight: bold; }
-
-        /* Glitch Title */
-        .title-container {
-            position: absolute; top: 20px; right: 40px; text-align: right;
-        }
-        .glitch {
-            font-size: 24px; font-weight: 900; position: relative; color: #fff;
-            text-shadow: 0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75);
-            animation: glitch 500ms infinite;
-        }
-        @keyframes glitch {
-            0% { text-shadow: 1px 0 0 red, -1px 0 0 blue; }
-            14% { text-shadow: 1px 0 0 red, -1px 0 0 blue; }
-            15% { text-shadow: -3px -2px 0 red, 3px 2px 0 blue; }
-            49% { text-shadow: -3px -2px 0 red, 3px 2px 0 blue; }
-            50% { text-shadow: 3px 2px 0 red, -3px -2px 0 blue; }
-            99% { text-shadow: 3px 2px 0 red, -3px -2px 0 blue; }
-            100% { text-shadow: -1px 0 0 red, 1px 0 0 blue; }
+        /* --- COLOR PALETTE (CYBER BLUE / SHARP) --- */
+        :root {
+            --accent-blue: #3b82f6; /* Sharp Electric Blue */
+            --neon-cyan: #06b6d4;   /* Secondary Highlight */
+            --navy-deep: #020617;   /* Deepest Background */
+            --slate-text: #94a3b8;  /* Muted Text */
+            --glass-bg: rgba(2, 6, 23, 0.85); /* Dark Glass */
+            --border-sharp: rgba(59, 130, 246, 0.5); /* Sharper Border */
+            --ticker-green: #10b981;
         }
 
-        #instructions {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            font-size: 12px; border: 1px solid #00f2ff; padding: 10px 20px;
-            cursor: pointer; transition: all 0.3s; background: rgba(0, 242, 255, 0.1);
-            pointer-events: auto;
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--navy-deep);
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+            cursor: crosshair; /* Technical Cursor */
         }
-        #instructions:hover { background: #00f2ff; color: #000; }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            /* Subtle deep gradient, heavier on the left to balance the particles on the right */
+            background: radial-gradient(circle at 30% 50%, #0f172a 0%, #020617 80%);
+        }
+
+        /* --- OVERLAY STRUCTURE --- */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none; /* Pass clicks through generally */
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        /* --- HEADER --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border-sharp);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            pointer-events: auto; /* Enable clicks on header links */
+            background: linear-gradient(90deg, var(--glass-bg) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .name-title h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem;
+            margin: 0;
+            letter-spacing: 4px;
+            color: #fff;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .contact-info {
+            font-size: 0.85rem;
+            text-align: right;
+            font-family: 'JetBrains Mono';
+            color: var(--slate-text);
+        }
+        .contact-info a { color: var(--accent-blue); text-decoration: none; transition: all 0.2s; }
+        .contact-info a:hover { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
+
+        /* --- MAIN LAYOUT (WIDER LEFT PANEL) --- */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 650px 1fr; /* Wide sidebar */
+            gap: 50px;
+            height: calc(100vh - 180px);
+        }
+
+        /* --- SIDEBAR STYLING --- */
+        .sidebar {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-sharp);
+            border-left: 4px solid var(--accent-blue); /* Strong left accent */
+            padding: 40px;
+            backdrop-filter: blur(25px); /* Stronger blur */
+            pointer-events: auto; /* Enable scrolling/interaction */
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-blue) transparent;
+            box-shadow: 25px 0 60px rgba(0,0,0,0.5); /* Deep shadow separating it from canvas */
+        }
+
+        h2 { 
+            font-size: 0.9rem; 
+            color: var(--accent-blue); 
+            text-transform: uppercase; 
+            letter-spacing: 3px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-family: 'JetBrains Mono';
+            font-weight: 600;
+        }
+        h2:first-child { margin-top: 0; }
+
+        .summary-text { font-size: 1rem; line-height: 1.7; color: #e2e8f0; font-weight: 300; }
+
+        .exp-item { margin-bottom: 40px; }
+        .exp-header { display: flex; justify-content: space-between; align-items: baseline; }
+        .role { font-weight: 700; font-size: 1.15rem; color: #fff; letter-spacing: 0.5px; }
+        .company { font-size: 0.95rem; color: var(--neon-cyan); font-family: 'JetBrains Mono'; margin-top: 6px; }
+        .date { font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--slate-text); }
+        .exp-bullets { font-size: 0.95rem; margin: 18px 0; padding-left: 20px; color: #cbd5e1; line-height: 1.6; }
+        .exp-bullets li { margin-bottom: 12px; }
+
+        .skill-tag {
+            display: inline-block;
+            border: 1px solid var(--border-sharp);
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--neon-cyan);
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            margin: 0 10px 10px 0;
+            font-family: 'JetBrains Mono';
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .skill-tag:hover { 
+            background: var(--accent-blue); 
+            color: #fff; 
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .click-instruction {
+            position: fixed;
+            bottom: 30px;
+            right: 40px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            letter-spacing: 2px;
+            pointer-events: none;
+            text-transform: uppercase;
+            opacity: 0.8;
+            animation: pulse 3s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; text-shadow: 0 0 10px var(--accent-blue); } }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 2px; }
+        ::-webkit-scrollbar-track { background: rgba(2, 6, 23, 0.5); }
     </style>
 </head>
 <body>
 
-    <div id="hud">
-        <div class="metric">SYSTEM: <span class="value">QUANTUM_CORE_V3</span></div>
-        <div class="metric">PARTICLES: <span class="value">100,000</span></div>
-        <div class="metric">FPS: <span id="fps" class="value">60</span></div>
-        <div class="metric">SHAPE_ID: <span id="shapeId" class="value">0</span></div>
-        <div class="metric">TIME: <span id="time" class="value">0.00</span></div>
-        <div class="metric">DPR: <span id="dpr" class="value">1.0</span></div>
+    <div id="canvas-container"></div>
+
+    <div class="overlay">
+        <div class="header">
+            <div class="name-title">
+                <h1>Andy Wang</h1>
+                <div style="font-size: 0.85rem; color: var(--slate-text); font-family: 'JetBrains Mono'; margin-top: 10px; letter-spacing: 1.5px;">QUANTITATIVE ANALYST | MFRM (ROTMAN) | DATA ARCHITECTURE</div>
+            </div>
+            <div class="contact-info">
+                <div><a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a></div>
+                <div><a href="https://linkedin.com/in/andyzianwang" target="_blank">linkedin.com/in/andyzianwang</a></div>
+                <div style="color: var(--ticker-green); margin-top: 8px; font-weight: bold; font-size: 0.75rem; letter-spacing: 1px;">● SYSTEM_STATUS: OPTIMIZED</div>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="sidebar">
+                <h2>Executive Summary</h2>
+                <p class="summary-text">
+                    Specialized in financial quantitative analysis and process automation. Expert in leveraging advanced Python architectures, LLM integration (RAG), and liquidity risk frameworks to drive institutional-grade data efficiency.
+                </p>
+
+                <h2>Professional Experience</h2>
+                
+                <div class="exp-item">
+                    <div class="exp-header">
+                        <span class="role">Manager, Data Process Automation</span>
+                        <span class="date">Aug 2025 - Present</span>
+                    </div>
+                    <div class="company">Scotiabank | Global Liquidity & Funding</div>
+                    <ul class="exp-bullets">
+                        <li>Architecting high-performance Python pipelines for daily liquidity data validation and SFT generation.</li>
+                        <li>Executing complex ME reconciliations for derivatives, MBS, and inventory portfolios across global systems.</li>
+                        <li>Deploying Streamlit-based monitoring ecosystems for real-time oversight of automated workflows.</li>
+                    </ul>
+                </div>
+
+                <div class="exp-item">
+                    <div class="exp-header">
+                        <span class="role">Senior Analyst, Regulatory Review</span>
+                        <span class="date">Aug 2024 - July 2025</span>
+                    </div>
+                    <div class="company">Scotiabank | Global Liquidity & Funding</div>
+                    <ul class="exp-bullets">
+                        <li>Engineered a full-stack automation suite in Python from the ground up, successfully reducing manual daily liquidity reporting overhead by approximately 80%.</li>
+                    </ul>
+                </div>
+
+                <div class="exp-item">
+                    <div class="exp-header">
+                        <span class="role">Investment Risk Analyst</span>
+                        <span class="date">Jan 2024 - Mar 2024</span>
+                    </div>
+                    <div class="company">Ontario Teachers' Pension Plan (OTPP)</div>
+                    <ul class="exp-bullets">
+                        <li>Built a custom GPT-4/RAG credit review engine, achieving >99% accuracy in legal term extraction vs human review.</li>
+                        <li>Transformed 300-page loan document analysis from multi-day tasks to 90-minute automated sprints.</li>
+                        <li>Initiated development of a vectorized in-house database for historical deal comparison and analytics.</li>
+                    </ul>
+                </div>
+
+                <h2>Technical Proficiency</h2>
+                <div style="margin-top: 20px;">
+                    <span class="skill-tag">PYTHON (PANDAS/NUMPY)</span>
+                    <span class="skill-tag">QUANTITATIVE RISK</span>
+                    <span class="skill-tag">SQL ARCHITECTURE</span>
+                    <span class="skill-tag">LANGCHAIN / RAG</span>
+                    <span class="skill-tag">LLM INTEGRATION (GPT-4)</span>
+                    <span class="skill-tag">STREAMLIT</span>
+                    <span class="skill-tag">ALTERYX</span>
+                </div>
+
+                <h2>Academic Background</h2>
+                <div class="exp-item" style="margin-bottom: 15px; margin-top:25px;">
+                    <div class="exp-header"><span class="role" style="font-size: 1rem;">M.S. Financial Risk Management</span><span class="date">2024</span></div>
+                    <div class="company">University of Toronto - Rotman School of Management</div>
+                </div>
+                <div class="exp-item">
+                    <div class="exp-header"><span class="role" style="font-size: 1rem;">B.Com Finance & Economics Specialist</span><span class="date">2023</span></div>
+                    <div class="company">University of Toronto | Focus in Data Science</div>
+                </div>
+            </div>
+            <div></div>
+        </div>
+         <div class="click-instruction">// CLICK_ANYWHERE_TO_RESTRUCTURE_DATA_MODELS_</div>
     </div>
 
-    <div class="title-container">
-        <div class="glitch">MORPH_ENGINE_V1</div>
-        <div style="font-size: 10px; opacity: 0.7;">NEURAL TOPOLOGY VISUALIZER</div>
-    </div>
+    <script id="vertexShader" type="x-shader/x-vertex">
+        uniform float uTime;
+        uniform float uMorphProgress;
+        uniform int uTargetShape;
+        uniform int uCurrentShape;
+        
+        // 5 Core Shapes
+        attribute vec3 position0; // Sphere
+        attribute vec3 position1; // Torus
+        attribute vec3 position2; // Cube
+        attribute vec3 position3; // Grid Wave
+        attribute vec3 position4; // Saturn Ring
 
-    <div id="instructions">INITIATE MORPH SEQUENCE [CLICK]</div>
+        varying float vYLevel;
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
+        vec3 getPos(int id) {
+            if(id == 0) return position0;
+            if(id == 1) return position1;
+            if(id == 2) return position2;
+            if(id == 3) return position3;
+            return position4;
+        }
+
+        void main() {
+            vec3 origin = getPos(uCurrentShape);
+            vec3 target = getPos(uTargetShape);
+            
+            // Sharper ease for technical feel
+            float t = uMorphProgress;
+            float easedProgress = t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;
+            
+            vec3 pos = mix(origin, target, easedProgress);
+            
+            // High frequency, low amplitude "jitter" for technical effect
+            float freq = 3.0;
+            float amp = 0.02;
+            pos.x += sin(uTime * freq + pos.y * 2.0) * amp;
+            pos.z += cos(uTime * freq + pos.x * 2.0) * amp;
+
+            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+            
+            // Slightly larger particles for sharper look
+            gl_PointSize = (11.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+            
+            vYLevel = pos.y;
         }
     </script>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { gsap } from 'https://cdn.skypack.dev/gsap';
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        varying float vYLevel;
+        
+        void main() {
+            // Sharp circular particle
+            float dist = distance(gl_PointCoord, vec2(0.5));
+            if(dist > 0.5) discard;
+            
+            // Sharp Gradient: Electric Blue to White/Cyan
+            vec3 colorBottom = vec3(0.1, 0.3, 0.9); // Deep Blue
+            vec3 colorTop = vec3(0.6, 0.9, 1.0);    // Bright Cyan/White
+            
+            // Map Y level to color gradient
+            vec3 finalColor = mix(colorBottom, colorTop, clamp(vYLevel * 0.25 + 0.5, 0.0, 1.0));
+            
+            // Sharper edge handling
+            float alpha = smoothstep(0.5, 0.35, dist);
+            
+            gl_FragColor = vec4(finalColor, alpha * 0.8);
+        }
+    </script>
 
-        // --- GLSL SHADERS ---
-        const vertexShader = `
-            uniform float uTime;
-            uniform float uMorphProgress;
-            uniform int uTargetShape; // 0: Sphere, 1: Torus, 2: Noise, 3: Box
-            uniform float uNoiseIntensity;
-
-            attribute vec3 positionSphere;
-            attribute vec3 positionTorus;
-            attribute vec3 positionNoise;
-            attribute vec3 positionBox;
-
-            varying vec3 vColor;
-            varying float vNoise;
-
-            // Simplex 3D Noise (simplified for performance)
-            vec4 permute(vec4 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
-            vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
-            float snoise(vec3 v){ 
-                const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
-                const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
-                vec3 i  = floor(v + dot(v, C.yyy) );
-                vec3 x0 = v - i + dot(i, C.xxx) ;
-                vec3 g = step(x0.yzx, x0.xyz);
-                vec3 l = 1.0 - g;
-                vec3 i1 = min( g.xyz, l.zxy );
-                vec3 i2 = max( g.xyz, l.zxy );
-                vec3 x1 = x0 - i1 + 1.0 * C.xxx;
-                vec3 x2 = x0 - i2 + 2.0 * C.xxx;
-                vec3 x3 = x0 - D.yyy;
-                i = mod(i, 289.0); 
-                vec4 p = permute( permute( permute( i.z + vec4(0.0, i1.z, i2.z, 1.0 )) + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
-                float n_ = 1.0/7.0;
-                vec3  ns = n_ * D.wyz - D.xzx;
-                vec4 j = p - 49.0 * floor(p * ns.z *ns.z);
-                vec4 x_ = floor(j * ns.z);
-                vec4 y_ = floor(j - 7.0 * x_ );
-                vec4 x = x_ *ns.x + ns.yyyy;
-                vec4 y = y_ *ns.x + ns.yyyy;
-                vec4 h = 1.0 - abs(x) - abs(y);
-                vec4 b0 = vec4( x.xy, y.xy );
-                vec4 b1 = vec4( x.zw, y.zw );
-                vec4 s0 = floor(b0)*2.0 + 1.0;
-                vec4 s1 = floor(b1)*2.0 + 1.0;
-                vec4 sh = -step(h, vec4(0.0));
-                vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
-                vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
-                vec3 p0 = vec3(a0.xy,h.x);
-                vec3 p1 = vec3(a0.zw,h.y);
-                vec3 p2 = vec3(a1.xy,h.z);
-                vec3 p3 = vec3(a1.zw,h.w);
-                vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
-                p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
-                m = m * m;
-                return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
-            }
-
-            void main() {
-                // Morph logic
-                vec3 target;
-                if(uTargetShape == 0) target = positionSphere;
-                else if(uTargetShape == 1) target = positionTorus;
-                else if(uTargetShape == 2) target = positionNoise;
-                else target = positionBox;
-
-                // Interpolate from current position to target
-                vec3 pos = mix(position, target, uMorphProgress);
-                
-                // Simplex Noise Jitter
-                float noise = snoise(pos * 0.5 + uTime * 0.2);
-                pos += normalize(pos) * noise * uNoiseIntensity;
-
-                vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                gl_PointSize = (1.5 / -mvPosition.z) * 500.0;
-                gl_Position = projectionMatrix * mvPosition;
-
-                // Color based on position and noise
-                vColor = mix(vec3(0.0, 0.95, 1.0), vec3(1.0), noise * 0.5 + 0.5);
-                vNoise = noise;
-            }
-        `;
-
-        const fragmentShader = `
-            varying vec3 vColor;
-            varying float vNoise;
-
-            void main() {
-                // Circular particles
-                float dist = distance(gl_PointCoord, vec2(0.5));
-                if (dist > 0.5) discard;
-                
-                float alpha = smoothstep(0.5, 0.2, dist);
-                gl_FragColor = vec4(vColor, alpha * (0.8 + vNoise * 0.2));
-            }
-        `;
-
-        // --- ENGINE SETUP ---
-        let scene, camera, renderer, composer, particles, material;
-        let currentShape = 0;
-        const count = 100000;
-        const mouse = new THREE.Vector2();
+    <script>
+        let scene, camera, renderer, particles, material;
+        let currentShapeIndex = 0;
+        const totalShapes = 5; // Retaining the 5 sharp shapes
+        const particleCount = 80000; // High count for density
+        let isMorphing = false;
+        let mouseX = 0, mouseY = 0;
 
         init();
         animate();
@@ -187,165 +347,154 @@
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 5;
+            camera.position.z = 8.5; // Slightly further back
 
-            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x050505);
-            document.body.appendChild(renderer.domElement);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-            // Post Processing (Bloom)
-            const renderScene = new RenderPass(scene, camera);
-            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-            bloomPass.threshold = 0.2;
-            bloomPass.strength = 1.2;
-            bloomPass.radius = 0.5;
+            // --- GEOMETRY GENERATION (5 Shapes) ---
+            const geometry = new THREE.BufferGeometry();
+            const posAttr = [];
+            for(let i=0; i < totalShapes; i++) posAttr.push(new Float32Array(particleCount * 3));
 
-            composer = new EffectComposer(renderer);
-            composer.addPass(renderScene);
-            composer.addPass(bloomPass);
-
-            // --- GEOMETRY ---
-            const geo = new THREE.BufferGeometry();
-            const positions = new Float32Array(count * 3);
-            const spherePos = new Float32Array(count * 3);
-            const torusPos = new Float32Array(count * 3);
-            const noisePos = new Float32Array(count * 3);
-            const boxPos = new Float32Array(count * 3);
-
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < particleCount; i++) {
                 const i3 = i * 3;
+                const random = Math.random();
 
-                // Initial (Random)
-                positions[i3] = (Math.random() - 0.5) * 10;
-                positions[i3+1] = (Math.random() - 0.5) * 10;
-                positions[i3+2] = (Math.random() - 0.5) * 10;
+            
+                // 0: Sphere (Core Data)
+                const phi = Math.acos(-1 + (2 * i) / particleCount);
+                const theta = Math.sqrt(particleCount * Math.PI) * phi;
+                const rS = 3.8;
+                posAttr[0][i3] = Math.cos(theta) * Math.sin(phi) * rS;
+                posAttr[0][i3+1] = Math.sin(theta) * Math.sin(phi) * rS;
+                posAttr[0][i3+2] = Math.cos(phi) * rS;
 
-                // Sphere
-                const u = Math.random();
-                const v = Math.random();
-                const theta = 2 * Math.PI * u;
-                const phi = Math.acos(2 * v - 1);
-                const r = 2.5;
-                spherePos[i3] = r * Math.sin(phi) * Math.cos(theta);
-                spherePos[i3+1] = r * Math.sin(phi) * Math.sin(theta);
-                spherePos[i3+2] = r * Math.cos(phi);
+                // 1: Torus (Cyclical Process)
+                const u = i / particleCount * Math.PI * 2;
+                const v = random * Math.PI * 2;
+                const tMaj = 3.8, tMin = 1.3;
+                posAttr[1][i3] = (tMaj + tMin * Math.cos(v)) * Math.cos(u);
+                posAttr[1][i3+1] = (tMaj + tMin * Math.cos(v)) * Math.sin(u);
+                posAttr[1][i3+2] = tMin * Math.sin(v);
 
-                // Torus
-                const tr = 2.0; // main radius
-                const tt = 0.8; // tube radius
-                const ta = Math.random() * Math.PI * 2;
-                const tb = Math.random() * Math.PI * 2;
-                torusPos[i3] = (tr + tt * Math.cos(tb)) * Math.cos(ta);
-                torusPos[i3+1] = (tr + tt * Math.cos(tb)) * Math.sin(ta);
-                torusPos[i3+2] = tt * Math.sin(tb);
+                // 3: Grid Wave (Market Volatility)
+                const gS = Math.ceil(Math.sqrt(particleCount));
+                const ix = i % gS, iz = Math.floor(i / gS);
+                const wX = (ix / gS - 0.5) * 15;
+                const wZ = (iz / gS - 0.5) * 15;
+                posAttr[3][i3] = wX;
+                posAttr[3][i3+1] = Math.sin(Math.sqrt(wX*wX + wZ*wZ) * 0.7 + random * 0.5) * 1.8;
+                posAttr[3][i3+2] = wZ;
 
-                // Noise Cloud
-                noisePos[i3] = (Math.random() - 0.5) * 6;
-                noisePos[i3+1] = (Math.random() - 0.5) * 6;
-                noisePos[i3+2] = (Math.random() - 0.5) * 6;
-
-                // Box
-                boxPos[i3] = (Math.random() - 0.5) * 4;
-                boxPos[i3+1] = (Math.random() - 0.5) * 4;
-                boxPos[i3+2] = (Math.random() - 0.5) * 4;
+                // 4: Saturn Ring (System Scope)
+                const rAngle = i / particleCount * Math.PI * 2;
+                const rRad = 4.5 + Math.pow(random, 0.7) * 4.0; // Biased towards outer edge
+                posAttr[4][i3] = rRad * Math.cos(rAngle);
+                posAttr[4][i3+1] = (random - 0.5) * 0.4; // Thin disc
+                posAttr[4][i3+2] = rRad * Math.sin(rAngle);
             }
 
-            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geo.setAttribute('positionSphere', new THREE.BufferAttribute(spherePos, 3));
-            geo.setAttribute('positionTorus', new THREE.BufferAttribute(torusPos, 3));
-            geo.setAttribute('positionNoise', new THREE.BufferAttribute(noisePos, 3));
-            geo.setAttribute('positionBox', new THREE.BufferAttribute(boxPos, 3));
+            // Set Attributes
+            geometry.setAttribute('position', new THREE.BufferAttribute(posAttr[0], 3));
+            for(let i=0; i < totalShapes; i++) {
+                geometry.setAttribute('position'+i, new THREE.BufferAttribute(posAttr[i], 3));
+            }
 
+            // Material Setup
             material = new THREE.ShaderMaterial({
                 uniforms: {
                     uTime: { value: 0 },
                     uMorphProgress: { value: 0 },
-                    uTargetShape: { value: 0 },
-                    uNoiseIntensity: { value: 0.1 }
+                    uCurrentShape: { value: 0 },
+                    uTargetShape: { value: 0 }
                 },
-                vertexShader,
-                fragmentShader,
+                vertexShader: document.getElementById('vertexShader').textContent,
+                fragmentShader: document.getElementById('fragmentShader').textContent,
                 transparent: true,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
 
-            particles = new THREE.Points(geo, material);
+            particles = new THREE.Points(geometry, material);
+            
+            // --- KEY CHANGE: SHIFT CENTER TO THE RIGHT ---
+            particles.position.x = 3.5; // Move the entire particle system right
+            
             scene.add(particles);
 
-            // Interaction
-            window.addEventListener('click', morphToNext);
-            window.addEventListener('mousemove', (e) => {
-                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-            });
+            // Event Listeners
             window.addEventListener('resize', onWindowResize);
-            document.getElementById('dpr').innerText = window.devicePixelRatio.toFixed(1);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('click', onCanvasClick);
         }
 
-        function morphToNext() {
-            currentShape = (currentShape + 1) % 4;
-            document.getElementById('shapeId').innerText = currentShape;
+        function onMouseMove(event) {
+            // Normalize mouse position
+            mouseX = (event.clientX / window.innerWidth) - 0.5;
+            mouseY = (event.clientY / window.innerHeight) - 0.5;
+        }
 
-            const tl = gsap.timeline();
+        function onCanvasClick(e) {
+            // Prevent clicks on sidebar/header from triggering morph
+            if (e.target.closest('.sidebar') || e.target.closest('.header a')) return;
+            
+            const nextIndex = (currentShapeIndex + 1) % totalShapes;
+            morphTo(nextIndex);
+        }
 
-            // Camera Action: Zoom In/Out Pulse
-            tl.to(camera.position, { z: 2, duration: 0.4, ease: "power2.in" });
-            tl.to(camera.position, { z: 5, duration: 1.2, ease: "elastic.out(1, 0.3)" });
+        function morphTo(index) {
+            if(isMorphing) return;
+            isMorphing = true;
 
-            // Morph Progress
-            tl.to(material.uniforms.uMorphProgress, { 
-                value: 1, 
-                duration: 1.5, 
-                ease: "expo.inOut",
+            const tl = gsap.timeline({
                 onComplete: () => {
-                    // Update the 'current' position attribute to the new shape to prepare for next morph
-                    const attrName = ['positionSphere', 'positionTorus', 'positionNoise', 'positionBox'][currentShape];
-                    particles.geometry.attributes.position.array.set(particles.geometry.attributes[attrName].array);
-                    particles.geometry.attributes.position.needsUpdate = true;
+                    material.uniforms.uCurrentShape.value = index;
                     material.uniforms.uMorphProgress.value = 0;
-                    material.uniforms.uTargetShape.value = (currentShape + 1) % 4;
+                    currentShapeIndex = index;
+                    isMorphing = false;
+                }
+            });
+            
+            // Camera "breathing" effect during morph
+            tl.to(camera.position, { z: 10, duration: 0.7, ease: "power2.out" }, 0);
+            tl.to(camera.position, { z: 8.5, duration: 1.0, ease: "power2.inOut" }, 0.7);
+
+            tl.to(material.uniforms.uMorphProgress, {
+                value: 1,
+                duration: 1.6,
+                ease: "expo.inOut", // Sharp, technical easing
+                onStart: () => {
+                    material.uniforms.uTargetShape.value = index;
                 }
             }, 0);
-
-            // Noise Pulse
-            tl.to(material.uniforms.uNoiseIntensity, { value: 2.5, duration: 0.4 }, 0);
-            tl.to(material.uniforms.uNoiseIntensity, { value: 0.1, duration: 1.0, ease: "power2.out" }, 0.4);
-
-            // Bloom Pulse
-            const bloom = composer.passes[1];
-            tl.to(bloom, { strength: 4.0, duration: 0.2 }, 0);
-            tl.to(bloom, { strength: 1.2, duration: 1.0 }, 0.2);
-
-            // Screen Shake (simulated with camera rotation)
-            tl.to(camera.rotation, { x: 0.1, y: 0.1, duration: 0.05, repeat: 5, yoyo: true }, 0);
         }
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            const time = performance.now() * 0.001;
-            material.uniforms.uTime.value = time;
+            
+            material.uniforms.uTime.value += 0.012;
 
-            // Subtle Camera Rotation based on mouse
-            particles.rotation.y += 0.002;
-            scene.rotation.x += (mouse.y * 0.2 - scene.rotation.x) * 0.05;
-            scene.rotation.y += (mouse.x * 0.2 - scene.rotation.y) * 0.05;
+            // Continuous slow rotation
+            particles.rotation.y += 0.0015;
 
-            // HUD Update
-            document.getElementById('time').innerText = time.toFixed(2);
-            document.getElementById('fps').innerText = Math.round(1000 / (performance.now() - (animate.lastTime || 0)));
-            animate.lastTime = performance.now();
+            // --- KEY CHANGE: INCREASED MOUSE FOLLOW FLOAT ---
+            // Multiplier increased to 0.6 for wider range of motion
+            // Lerp factor increased to 0.08 for faster response
+            const targetRotX = mouseY * 0.6; 
+            const targetRotY = mouseX * 0.6;
+            particles.rotation.x += (targetRotX - particles.rotation.x) * 0.08;
+            particles.rotation.y += (targetRotY - particles.rotation.y) * 0.08;
 
-            composer.render();
+            renderer.render(scene, camera);
         }
     </script>
 </body>
