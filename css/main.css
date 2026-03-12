@@ -17,6 +17,7 @@
   --color-accent: #1a5c6b;
   --color-accent-hover: #0e3d48;
   --color-accent-light: #e4f0f2;
+  --color-gbm: #7850a0;
   --color-rule: #c8c2b4;
   --color-rule-light: #e0dcd4;
   --color-highlight: #fdf6e3;
@@ -39,6 +40,7 @@ html[data-theme="dark"] {
   --color-accent: #4db8c9;
   --color-accent-hover: #6dd0df;
   --color-accent-light: rgba(77, 184, 201, 0.12);
+  --color-gbm: #a07be0;
   --color-rule: #444444;
   --color-rule-light: #333333;
   --color-highlight: #2a2520;

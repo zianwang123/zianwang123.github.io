@@ -137,7 +137,7 @@
     const NUM_STEPS = 200;
     const MU = 0.0003;
     const SIGMA = 0.014;
-    const PATH_OPACITY = 0.04;
+    const PATH_OPACITY = 0.07;
     const PATH_WIDTH = 0.6;
 
     let rawPaths = [];    // normalized price paths (start at 1.0)
@@ -222,11 +222,12 @@
 
       var xStep = canvasW / (NUM_STEPS - 1);
       var accent = getCSSColor('--color-accent', '#1a5c6b');
+      var gbmColor = getCSSColor('--color-gbm', '#7850a0');
       var ruleColor = getCSSColor('--color-rule-light', '#e0dcd4');
 
       // Draw faint simulation paths
       ctx.lineWidth = PATH_WIDTH;
-      ctx.strokeStyle = accent;
+      ctx.strokeStyle = gbmColor;
 
       for (var i = 0; i < NUM_PATHS; i++) {
         ctx.globalAlpha = PATH_OPACITY;
@@ -239,7 +240,7 @@
       }
 
       // Median line — same accent, slightly stronger
-      drawOverlayLine(medianPath, accent, [], 1.5, 0.35, maxStep, xStep);
+      drawOverlayLine(medianPath, gbmColor, [], 1.5, 0.35, maxStep, xStep);
       // VaR 5% — use the rule/muted color
       drawOverlayLine(var5Path, ruleColor, [5, 4], 1.0, 0.45, maxStep, xStep);
       // CVaR 1%
