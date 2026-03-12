@@ -196,6 +196,34 @@ hr {
   margin-bottom: 3rem;
 }
 
+.contact-bar {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.contact-bar a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.contact-bar a:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+.contact-sep {
+  color: var(--color-text-secondary);
+  opacity: 0.4;
+  user-select: none;
+}
+
 .site-header .subtitle {
   font-size: 1.05rem;
   color: var(--color-text-secondary);
@@ -206,13 +234,14 @@ hr {
 nav {
   margin-top: 1.5rem;
   display: flex;
-  gap: 1.5rem;
+  gap: 2.5rem;
   flex-wrap: wrap;
 }
 
 nav a {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-decoration: none;
