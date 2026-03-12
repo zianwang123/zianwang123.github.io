@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Private Credit Intelligence Engine &mdash; Zian Wang</title>
+  <meta name="description" content="Agentic document intelligence system for credit agreement analysis with 97.3% F1 accuracy.">
+  <meta property="og:title" content="Private Credit Intelligence Engine — Zian Wang">
+  <meta property="og:description" content="Agentic document intelligence system for credit agreement analysis with 97.3% F1 accuracy.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zianwang123.github.io/projects/private-credit-intel.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Private Credit Intelligence Engine — Zian Wang">
+  <meta name="twitter:description" content="Agentic document intelligence system for credit agreement analysis with 97.3% F1 accuracy.">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80' font-family='serif'>W</text></svg>">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="content">
+
+      <a href="../" class="back-link">&larr; Back</a>
+
+      <div class="project-header">
+        <h1>Private Credit Intelligence Engine</h1>
+        <div class="project-meta">
+          <span>Personal project, 2026</span>
+          <span>Evolved from OTPP internship tool</span>
+          <span><a href="https://github.com/zianwang123" target="_blank" rel="noopener">GitHub</a></span>
+        </div>
+      </div>
+
+      <div class="abstract">
+        An agentic document intelligence system that ingests credit agreement PDFs,
+        extracts normalized covenant and pricing terms into structured data,
+        self-verifies uncertain fields through an LLM-as-judge correction loop,
+        grounds every field in source evidence, compares documents across deals,
+        and generates portfolio-level risk analytics.
+      </div>
+
+      <h2>Origin</h2>
+      <p>
+        In early 2024, as an Investment Risk Analyst at Ontario Teachers' Pension Plan,
+        I built an LLM-powered credit loan agreement review tool using LangChain and
+        GPT-4 with RAG. It reduced review time for 200&ndash;300 page agreements from
+        days to 1&ndash;2 hours and achieved 99% key term identification across 5 active deals.
+      </p>
+      <p>
+        That prototype proved the workflow but relied on prompt-heavy parsing, brittle
+        chunking, and loosely structured outputs. This project is the ground-up rebuild &mdash;
+        designed for reliability, traceability, and quantitative analytics.
+      </p>
+
+      <h2>Architecture</h2>
+
+      <div class="architecture">
+        <div class="arch-flow">
+          <div class="arch-layer">
+            <div class="arch-layer-label">Layer A &mdash; Ingestion</div>
+            <div class="arch-layer-content">
+              PDF loading (PyMuPDF) &rarr; TOC detection (regex) &rarr; Section/heading parse (regex + LLM fallback)
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Layer B &mdash; Hybrid Retrieval</div>
+            <div class="arch-layer-content">
+              Section-aware chunking &rarr; OpenAI embeddings (text-embed-3) &rarr;
+              Semantic search (cosine sim) + Keyword search (exact term) &rarr; Merged results
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Layer C &mdash; Extraction (6 schema families)</div>
+            <div class="arch-layer-content">
+              Pricing Terms &middot; Leverage Covenants &middot; Debt Baskets &middot;
+              EBITDA Definitions &middot; Collateral Package &middot; Events of Default<br>
+              <em>44 fields total, concurrent via ThreadPoolExecutor, dual-provider (OpenAI + Anthropic)</em>
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Layer D &mdash; Validation</div>
+            <div class="arch-layer-content">
+              Numeric range checks (%, x, USD, bps, dates) &middot;
+              Citation verification (evidence text &harr; source chunks)
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer" style="border-color: var(--color-accent);">
+            <div class="arch-layer-label">Layer D.5 &mdash; Staged Self-Verification (Agentic Loop)</div>
+            <div class="arch-layer-content">
+              Stage A: Informed verification (temp=0.2) &rarr;
+              Stage B: Blind re-extraction (temp=0.7, reversed chunks) &rarr;
+              Stage C: Source-grounded judge (temp=0.0)<br>
+              <em>Deterministic evidence scoring at each stage &mdash; 83% resolved without judge call</em>
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Layer E &mdash; Analytics</div>
+            <div class="arch-layer-content">
+              Risk scoring (covenant tightness, add-back aggressiveness, lender protection) &middot;
+              Cross-document comparison &middot; Cross-model consensus &middot; Portfolio-level analytics
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Output</div>
+            <div class="arch-layer-content">
+              Streamlit UI &middot; Single document view &middot; Auto-generated term sheet &middot;
+              Risk gauge charts &middot; Side-by-side comparison &middot; Portfolio dashboard
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Benchmark Results</h2>
+      <p>
+        Tested on three publicly filed SEC EDGAR credit agreements spanning different
+        deal types, with both OpenAI and Anthropic models:
+      </p>
+
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Pages</th>
+            <th>Model</th>
+            <th class="num">Fields</th>
+            <th class="num">Time</th>
+            <th class="num">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Daseke Term Loan (leveraged)</td>
+            <td class="num">182</td>
+            <td>GPT-5.1</td>
+            <td class="num highlight">38/44</td>
+            <td class="num">80s</td>
+            <td class="num">$0.74</td>
+          </tr>
+          <tr>
+            <td>Daseke Term Loan (leveraged)</td>
+            <td class="num">182</td>
+            <td>Claude Opus 4.6</td>
+            <td class="num">30/44</td>
+            <td class="num">270s</td>
+            <td class="num">$3.18</td>
+          </tr>
+          <tr>
+            <td>Royal Wolf A$125M Syndicated</td>
+            <td class="num">184</td>
+            <td>GPT-5.1</td>
+            <td class="num">23/44</td>
+            <td class="num">74s</td>
+            <td class="num">$0.32</td>
+          </tr>
+          <tr>
+            <td>Pepco Holdings $200M Term Loan</td>
+            <td class="num">85</td>
+            <td>GPT-5.1</td>
+            <td class="num">15/44</td>
+            <td class="num">55s</td>
+            <td class="num">$0.29</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Evaluation (132 ground-truth fields)</h3>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th class="num">Score</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Precision</td>
+            <td class="num highlight">100.0%</td>
+            <td>Zero false positives</td>
+          </tr>
+          <tr>
+            <td>Recall</td>
+            <td class="num highlight">94.7%</td>
+            <td>Misses are &ldquo;ambiguous&rdquo; rather than wrong</td>
+          </tr>
+          <tr>
+            <td>F1</td>
+            <td class="num highlight">97.3%</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Numeric Accuracy</td>
+            <td class="num highlight">96.5%</td>
+            <td>Extracted values within tolerance</td>
+          </tr>
+          <tr>
+            <td>Page Overlap</td>
+            <td class="num">88.7%</td>
+            <td>Citation page numbers reliably correct</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <p>
+          <strong>Design philosophy: precision over recall.</strong>
+          A credit analyst would rather see &ldquo;not found&rdquo; than a wrong value.
+          The system returns <code>not_found</code> for genuinely absent fields &mdash;
+          the investment-grade Pepco deal correctly has no EBITDA add-backs, no collateral,
+          no debt baskets, as expected for an unsecured utility term loan.
+        </p>
+      </div>
+
+      <h2>Key Technical Decisions</h2>
+
+      <details class="decision-block">
+        <summary>Why hybrid retrieval (semantic + keyword)?</summary>
+        <div class="decision-content">
+          <p>
+            Pure embedding-based semantic search has a known blind spot: when a short,
+            high-value definition is embedded in a 4000-character chunk containing 20+ other
+            unrelated definitions, the embedding becomes a diluted average. In testing,
+            the chunk containing &ldquo;Applicable Rate&rdquo; ranked 19th out of 475 chunks
+            for the best semantic query &mdash; well below the top-10 cutoff.
+          </p>
+          <p>
+            Keyword search solves this at zero additional API cost and improved field discovery
+            from 29/44 to 38/44 fields (+31%).
+          </p>
+        </div>
+      </details>
+
+      <details class="decision-block">
+        <summary>Why staged self-verification instead of running twice?</summary>
+        <div class="decision-content">
+          <p>
+            The self-correction literature shows that naive &ldquo;please reconsider&rdquo;
+            prompts suffer from anchoring bias (Huang et al. 2024), while structured
+            evidence-based verification improves accuracy reliably (Kamoi et al. 2024).
+          </p>
+          <p>
+            The staged design is selective (only re-extracts flagged fields, typically 5&ndash;15%),
+            evidence-constrained (treats prior answers as falsifiable hypotheses),
+            and uses deterministic fast-pass filtering so most fields resolve without an LLM judge.
+            On the Daseke deal: 5 fields flagged, 83% resolved by deterministic checks alone.
+          </p>
+        </div>
+      </details>
+
+      <details class="decision-block">
+        <summary>Why dual-provider (OpenAI + Anthropic)?</summary>
+        <div class="decision-content">
+          <p>
+            Running both providers on the same document enables cross-model consensus:
+            fields where both models agree have high confidence, while disagreements flag
+            fields for human review. This provides a confidence signal without requiring
+            ground-truth labels.
+          </p>
+        </div>
+      </details>
+
+      <details class="decision-block">
+        <summary>Why evidence grounding?</summary>
+        <div class="decision-content">
+          <p>
+            Every extracted field carries <code>evidence_text</code> and <code>page_numbers</code>.
+            The citation check layer verifies that the evidence actually appears in the source chunks.
+            Users can audit exactly what the model read. This catches hallucinated citations &mdash;
+            the model cannot claim evidence from text that doesn't exist in the document.
+          </p>
+        </div>
+      </details>
+
+      <h2>Five-Layer Verification System</h2>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>What</th>
+            <th>How</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. Schema Enforcement</td>
+            <td>No malformed JSON</td>
+            <td>OpenAI Structured Outputs / Anthropic Tool Use</td>
+          </tr>
+          <tr>
+            <td>2. Domain Validation</td>
+            <td>No out-of-range values</td>
+            <td>Numeric range checks + evidence substring matching</td>
+          </tr>
+          <tr>
+            <td>3. Self-Verification</td>
+            <td>Agentic self-correction</td>
+            <td>3-stage escalation: informed &rarr; blind &rarr; judge</td>
+          </tr>
+          <tr>
+            <td>4. Evidence Traceability</td>
+            <td>Every field is auditable</td>
+            <td>Page numbers + evidence text in every extraction</td>
+          </tr>
+          <tr>
+            <td>5. Labeled Evaluation</td>
+            <td>Systematic accuracy</td>
+            <td>132 ground-truth fields, precision/recall/F1</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Technology</h2>
+      <ul class="stack-list">
+        <li>Python</li>
+        <li>OpenAI API</li>
+        <li>Anthropic API</li>
+        <li>PyMuPDF</li>
+        <li>NumPy</li>
+        <li>Pydantic v2</li>
+        <li>Streamlit</li>
+        <li>Plotly</li>
+        <li>ThreadPoolExecutor</li>
+      </ul>
+
+      <h2>References</h2>
+      <p style="font-size: 0.88rem; color: var(--color-text-secondary);">
+        The self-verification loop is informed by 8 papers in the LLM self-correction literature,
+        including Kamoi et al. (2024) on external feedback, Huang et al. (2024) on anchoring bias,
+        Dhuliawala et al. (2023) on Chain-of-Verification, and Liu et al. (2024) on positional bias
+        in long contexts.
+      </p>
+
+      <hr>
+      <a href="../" class="back-link">&larr; Back to all projects</a>
+
+      <footer class="site-footer">
+        <a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a>
+        <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/zianwang123" target="_blank" rel="noopener">GitHub</a>
+      </footer>
+
+    </div>
+  </div>
+</body>
+</html>

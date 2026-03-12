@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zian (Andy) Wang</title>
+  <meta name="description" content="Finance, mathematics, and machine learning. Looking for what comes next.">
+  <meta property="og:title" content="Zian (Andy) Wang">
+  <meta property="og:description" content="Finance, mathematics, and machine learning. Looking for what comes next.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zianwang123.github.io/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Zian (Andy) Wang">
+  <meta name="twitter:description" content="Finance, mathematics, and machine learning. Looking for what comes next.">
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+    // Prevent flash: apply saved theme before paint
+    (function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.setAttribute('data-theme','dark')}})();
+  </script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80' font-family='serif'>W</text></svg>">
+</head>
+<body>
+  <button class="theme-toggle" aria-label="Toggle dark mode">Dark</button>
+  <div class="page-wrapper">
+    <div class="content">
+
+      <!-- Hero area with GBM canvas background -->
+      <div class="hero-wrapper">
+        <canvas id="gbm-canvas" aria-hidden="true"></canvas>
+
+        <!-- Header -->
+        <header class="site-header">
+          <h1>Zian (Andy) Wang</h1>
+          <p class="subtitle">
+            Finance, mathematics, and machine learning.<br>
+            Looking for what comes next.
+          </p>
+          <nav>
+            <a href="#projects">Projects</a>
+            <a href="#background">Background</a>
+            <a href="#foundations">Mathematical Foundations</a>
+            <a href="#skills">Skills</a>
+            <a href="#contact">Contact</a>
+          </nav>
+        </header>
+
+        <!-- Metrics Strip -->
+        <div class="metrics-strip" aria-label="Key metrics">
+          <div class="metric">
+            <span class="metric-value" data-target="3.96" data-prefix="" data-suffix="">3.96</span>
+            <span class="metric-label">MFRM GPA</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value" data-target="3.92" data-prefix="" data-suffix="">3.92</span>
+            <span class="metric-label">BCom GPA</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value" data-target="170" data-prefix="" data-suffix="">170</span>
+            <span class="metric-label">GRE Quant</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value" data-target="97.3" data-prefix="" data-suffix="%">97.3%</span>
+            <span class="metric-label">Extraction F1</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value" data-target="8" data-prefix="" data-suffix="h+">8h+</span>
+            <span class="metric-label">Daily Saved</span>
+          </div>
+        </div>
+      </div><!-- /.hero-wrapper -->
+
+      <!-- About -->
+      <section id="about" class="about-section">
+        <p>
+          I study the places where mathematics, finance, and machine learning meet &mdash; and I build
+          tools at those intersections. Most of my projects started as something small that I pushed
+          further than anyone asked me to, because the problem was interesting and the result mattered.
+          Right now I'm looking for a graduate program where I can deepen that work.
+        </p>
+      </section>
+
+      <!-- Projects -->
+      <section id="projects">
+        <h2>Projects</h2>
+
+        <div class="projects-grid">
+
+          <!-- Project 1 -->
+          <div class="project-card">
+            <div class="project-card-inner">
+              <div>
+                <div class="project-number">01</div>
+                <h3><a href="projects/private-credit-intel.html">Private Credit Intelligence Engine</a></h3>
+                <p class="project-origin">Evolved from an internship tool built at Ontario Teachers' Pension Plan</p>
+                <p class="project-desc">
+                  An agentic document intelligence system that ingests credit agreement PDFs,
+                  extracts 44 normalized covenant and pricing fields into structured data,
+                  self-verifies uncertain fields through a three-stage LLM correction loop,
+                  and generates portfolio-level risk analytics.
+                </p>
+                <div class="project-result">
+                  Precision 100% &nbsp;&middot;&nbsp; Recall 94.7% &nbsp;&middot;&nbsp; F1 97.3%<span class="sidenote-ref">1</span> &nbsp;&middot;&nbsp; Numeric Accuracy 96.5%
+                </div>
+                <span class="sidenote"><span class="sidenote-ref">1</span> F1 measured on a held-out set of 15 credit agreements across CLOs, term loans, and revolvers.</span>
+                <div class="project-stack">
+                  Python &middot; OpenAI API &middot; Anthropic API &middot; PyMuPDF &middot; Pydantic &middot; Streamlit
+                </div>
+              </div>
+              <div class="project-link">
+                <a href="projects/private-credit-intel.html">
+                  Details &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project 2 -->
+          <div class="project-card">
+            <div class="project-card-inner">
+              <div>
+                <div class="project-number">02</div>
+                <h3><a href="projects/quant-factor-portfolio.html">Quant Factor-Portfolio Pipeline</a></h3>
+                <p class="project-origin">Evolved from MFRM Advanced Investments coursework at Rotman</p>
+                <p class="project-desc">
+                  End-to-end quantitative factor investment pipeline: from alpha discovery
+                  through factor selection and portfolio optimization to Black-Litterman
+                  deployment. Constructs 10+ factor families validated against Capital IQ
+                  benchmarks using Compustat/CRSP data.
+                </p>
+                <div class="project-result">
+                  10+ Factor Families &nbsp;&middot;&nbsp; Black-Litterman &nbsp;&middot;&nbsp; Mean-Variance via CVXPY
+                </div>
+                <div class="project-stack">
+                  Python &middot; NumPy &middot; Pandas &middot; SciPy &middot; statsmodels &middot; CVXPY &middot; Plotly
+                </div>
+              </div>
+              <div class="project-link">
+                <a href="projects/quant-factor-portfolio.html">
+                  Details &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Background -->
+      <section id="background">
+        <h2>Background</h2>
+
+        <h3>Experience</h3>
+        <div class="timeline">
+          <div class="timeline-item current">
+            <div class="timeline-date">Aug 2025 &ndash; Present</div>
+            <div class="timeline-role">Manager, Data Process Automation</div>
+            <div class="timeline-org">Scotiabank &mdash; Global Liquidity &amp; Funding Management</div>
+            <div class="timeline-detail">Promoted within 1 year (role typically requires 2&ndash;3 yrs)</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Aug 2024 &ndash; Jul 2025</div>
+            <div class="timeline-role">Senior Analyst, Regulatory Financial Review</div>
+            <div class="timeline-org">Scotiabank &mdash; Global Liquidity &amp; Funding Management</div>
+            <div class="timeline-detail">Python automation for LCR/NSFR/NCCF reporting &middot; 8+ hrs/day saved</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Jan &ndash; Mar 2024</div>
+            <div class="timeline-role">Investment Risk Analyst</div>
+            <div class="timeline-org">Ontario Teachers' Pension Plan &mdash; Credit &amp; Capital Markets Risk</div>
+            <div class="timeline-detail">Built LLM-powered credit agreement review tool &middot; 99% key term ID</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">May &ndash; Aug 2021</div>
+            <div class="timeline-role">Data Analyst</div>
+            <div class="timeline-org">Bohai Securities Co., Ltd</div>
+            <div class="timeline-detail">Tick-level trading data &middot; Factor evaluation &middot; 100mm+ portfolio</div>
+          </div>
+        </div>
+
+        <h3>Education</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">2023 &ndash; 2024</div>
+            <div class="timeline-role">Master of Financial Risk Management</div>
+            <div class="timeline-org">Rotman School of Management, University of Toronto</div>
+            <div class="timeline-detail">GPA 3.96/4.0</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">2019 &ndash; 2023</div>
+            <div class="timeline-role">Bachelor of Commerce &mdash; Finance &amp; Economics Specialist</div>
+            <div class="timeline-org">Rotman School of Management, University of Toronto</div>
+            <div class="timeline-detail">GPA 3.92/4.0 &middot; High Distinction &middot; Focus in Data Science &middot; Dean's List &times;3</div>
+          </div>
+        </div>
+
+        <div class="sidenote-inline" style="margin-top: 1.2rem;">
+          Previously admitted to the University of Chicago MS in Financial Mathematics (2023).
+          Chose Rotman MFRM for its risk management depth and proximity to Canada&rsquo;s institutional investors.
+        </div>
+      </section>
+
+      <!-- Mathematical Foundations -->
+      <section id="foundations">
+        <h2>Mathematical Foundations</h2>
+        <p>
+          Self-directed study in graduate-level mathematics, in spare time.
+        </p>
+
+        <table class="study-table">
+          <thead>
+            <tr>
+              <th>Text</th>
+              <th>Author</th>
+              <th>Coverage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="book-title">Probability: Theory and Examples</td>
+              <td>Durrett</td>
+              <td class="book-coverage">Ch. 1&ndash;7 &mdash; Measure-theoretic probability, LLN, CLT, martingales, Markov chains</td>
+            </tr>
+            <tr>
+              <td class="book-title">Real Analysis</td>
+              <td>Folland</td>
+              <td class="book-coverage">Ch. 0&ndash;3, parts of 5&ndash;6 &mdash; Measure theory, Lebesgue integration, L<sup>p</sup> spaces</td>
+            </tr>
+            <tr>
+              <td class="book-title">Principles of Mathematical Analysis</td>
+              <td>Rudin</td>
+              <td class="book-coverage">Ch. 1&ndash;7 &mdash; Metric spaces, sequences, continuity, differentiation, R-S integration</td>
+            </tr>
+            <tr>
+              <td class="book-title">Introduction to Linear Algebra</td>
+              <td>Strang</td>
+              <td class="book-coverage">Complete &mdash; Vector spaces, eigenvalues, SVD, linear transformations</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Certificates &amp; Continuing Study</h3>
+        <p>
+          <strong>Baruch MFE C++ Programming for Financial Engineering</strong> &mdash;
+          Online certificate developed by Dr. Daniel Duffy and QuantNet. In progress.
+        </p>
+        <p style="font-size: 0.88rem; color: var(--color-text-secondary);">
+          Planned: Shreve <em>Stochastic Calculus for Finance II</em>,
+          ODEs/PDEs, Sutton &amp; Barto <em>Reinforcement Learning</em>,
+          Raschka <em>Build a Large Language Model (From Scratch)</em>.
+        </p>
+      </section>
+
+      <!-- Skills -->
+      <section id="skills">
+        <h2>Technical Skills</h2>
+        <div class="skills-grid">
+          <div class="skill-category">Languages</div>
+          <div class="skill-items">Python, SQL, C++ (learning)</div>
+
+          <div class="skill-category">Python</div>
+          <div class="skill-items">Pandas, NumPy, SciPy, scikit-learn, statsmodels, CVXPY, PyMuPDF, Pydantic</div>
+
+          <div class="skill-category">AI / ML</div>
+          <div class="skill-items">LangChain, OpenAI API, Anthropic API, RAG, structured outputs, prompt engineering</div>
+
+          <div class="skill-category">Visualization</div>
+          <div class="skill-items">Streamlit, Plotly, Matplotlib, Seaborn</div>
+
+          <div class="skill-category">Finance</div>
+          <div class="skill-items">LCR/NSFR/NCCF, derivatives (TRS, MBS, options/futures), credit agreements, factor investing, Black-Litterman</div>
+
+          <div class="skill-category">Tools</div>
+          <div class="skill-items">Git, Alteryx, OOP, testing frameworks, automation pipelines</div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact">
+        <footer class="site-footer">
+          <a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a>
+          <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://github.com/zianwang123" target="_blank" rel="noopener">GitHub</a>
+        </footer>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

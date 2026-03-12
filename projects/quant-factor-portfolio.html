@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quant Factor-Portfolio Pipeline &mdash; Zian Wang</title>
+  <meta name="description" content="End-to-end quantitative factor investment pipeline: from alpha discovery to portfolio deployment.">
+  <meta property="og:title" content="Quant Factor-Portfolio Pipeline — Zian Wang">
+  <meta property="og:description" content="End-to-end quantitative factor investment pipeline: from alpha discovery to portfolio deployment.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zianwang123.github.io/projects/quant-factor-portfolio.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Quant Factor-Portfolio Pipeline — Zian Wang">
+  <meta name="twitter:description" content="End-to-end quantitative factor investment pipeline: from alpha discovery to portfolio deployment.">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80' font-family='serif'>W</text></svg>">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="content">
+
+      <a href="../" class="back-link">&larr; Back</a>
+
+      <div class="project-header">
+        <h1>Quant Factor-Portfolio Pipeline</h1>
+        <div class="project-meta">
+          <span>Personal project, 2026</span>
+          <span>Evolved from MFRM Advanced Investments</span>
+          <span><a href="https://github.com/zianwang123/quant-factor-portfolio-pipeline" target="_blank" rel="noopener">GitHub</a></span>
+        </div>
+      </div>
+
+      <div class="abstract">
+        End-to-end quantitative factor investment pipeline spanning the full lifecycle:
+        factor construction from Compustat/CRSP data, statistical selection and validation
+        against Capital IQ benchmarks, mean-variance portfolio optimization via convex
+        programming, and Black-Litterman equilibrium with sensitivity analysis.
+      </div>
+
+      <h2>Origin</h2>
+      <p>
+        This project began as coursework for Advanced Investments during the MFRM at
+        Rotman. The original assignment explored factor-based portfolio construction using
+        academic datasets. I rebuilt and extended it into a production-grade pipeline with
+        a modular architecture, additional factor families, formal optimization, and
+        Black-Litterman integration.
+      </p>
+
+      <h2>Pipeline Architecture</h2>
+
+      <div class="architecture">
+        <div class="arch-flow">
+          <div class="arch-layer">
+            <div class="arch-layer-label">Stage 1 &mdash; Factor Construction</div>
+            <div class="arch-layer-content">
+              10+ factor families built from Compustat/CRSP fundamentals: valuation, momentum,
+              growth, leverage, earnings quality, risk, sentiment, analyst, price factors.
+              Each factor inherits from an abstract base class for extensibility.
+              Validated against Capital IQ benchmarks via correlation checks.
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Stage 2 &mdash; Factor Selection</div>
+            <div class="arch-layer-content">
+              Statistical testing and screening of factor candidates.
+              Cross-sectional sorts and portfolio formation for factor return estimation.
+              Integration with Fama-French factor loadings.
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Stage 3 &mdash; Portfolio Optimization</div>
+            <div class="arch-layer-content">
+              Covariance estimation with shrinkage methods.
+              Mean-variance optimization via CVXPY (convex programming).
+              Constraint handling: long-only, turnover limits, sector bounds.
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Stage 4 &mdash; Black-Litterman</div>
+            <div class="arch-layer-content">
+              Implied equilibrium returns via reverse optimization: &pi; = &delta;&Sigma;w<sub>mkt</sub>.
+              Market-capitalization weighting. View blending with investor confidence.
+              Sensitivity analysis across risk aversion parameters.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Factor Families</h2>
+
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Examples</th>
+            <th>Data Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fundamental</td>
+            <td>Book-to-market, ROE, ROA, asset turnover</td>
+            <td>Compustat</td>
+          </tr>
+          <tr>
+            <td>Valuation</td>
+            <td>Earnings yield, cash flow yield, dividend yield</td>
+            <td>Compustat</td>
+          </tr>
+          <tr>
+            <td>Momentum</td>
+            <td>12-1 month return, 6-month return, reversal</td>
+            <td>CRSP</td>
+          </tr>
+          <tr>
+            <td>Growth</td>
+            <td>Revenue growth, earnings growth, asset growth</td>
+            <td>Compustat</td>
+          </tr>
+          <tr>
+            <td>Leverage</td>
+            <td>Debt-to-equity, interest coverage, debt-to-assets</td>
+            <td>Compustat</td>
+          </tr>
+          <tr>
+            <td>Earnings Quality</td>
+            <td>Accruals, cash flow vs. earnings, persistence</td>
+            <td>Compustat</td>
+          </tr>
+          <tr>
+            <td>Risk</td>
+            <td>Beta, idiosyncratic volatility, downside risk</td>
+            <td>CRSP</td>
+          </tr>
+          <tr>
+            <td>Sentiment / Analyst</td>
+            <td>Analyst revisions, recommendation changes</td>
+            <td>Capital IQ</td>
+          </tr>
+          <tr>
+            <td>Price</td>
+            <td>52-week high ratio, volume trends</td>
+            <td>CRSP</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Key Technical Decisions</h2>
+
+      <details class="decision-block">
+        <summary>Why abstract base class architecture for factors?</summary>
+        <div class="decision-content">
+          <p>
+            Each factor implements a <code>Factor</code> ABC with a <code>compute()</code> method
+            that returns a date &times; asset DataFrame of exposures, and a <code>validate()</code>
+            method that checks correlation against Capital IQ benchmarks. This makes adding
+            new factors a single-file operation with guaranteed interface consistency.
+          </p>
+        </div>
+      </details>
+
+      <details class="decision-block">
+        <summary>Why CVXPY for optimization?</summary>
+        <div class="decision-content">
+          <p>
+            CVXPY provides disciplined convex programming with constraint handling that
+            would require complex manual implementation with SciPy's minimize.
+            Constraints like long-only, turnover limits, and sector bounds are expressed
+            declaratively, making the optimization transparent and auditable.
+          </p>
+        </div>
+      </details>
+
+      <details class="decision-block">
+        <summary>Why Black-Litterman?</summary>
+        <div class="decision-content">
+          <p>
+            Standard mean-variance optimization is notoriously sensitive to expected return
+            estimates. Black-Litterman starts from market equilibrium (implied returns from
+            market-cap weights) and blends in investor views with explicit confidence levels.
+            This produces more stable, economically intuitive allocations.
+          </p>
+        </div>
+      </details>
+
+      <h2>Technology</h2>
+      <ul class="stack-list">
+        <li>Python</li>
+        <li>NumPy</li>
+        <li>Pandas</li>
+        <li>SciPy</li>
+        <li>statsmodels</li>
+        <li>scikit-learn</li>
+        <li>CVXPY</li>
+        <li>Matplotlib</li>
+        <li>Seaborn</li>
+        <li>Plotly</li>
+        <li>PyArrow</li>
+      </ul>
+
+      <div class="callout">
+        <p>
+          <strong>Data sources:</strong> Compustat/CRSP merged dataset for fundamentals and returns,
+          Capital IQ for benchmark factor values, Fama-French research factors for risk model loadings,
+          S&amp;P 500 returns for benchmark comparison.
+        </p>
+      </div>
+
+      <hr>
+      <a href="../" class="back-link">&larr; Back to all projects</a>
+
+      <footer class="site-footer">
+        <a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a>
+        <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/zianwang123" target="_blank" rel="noopener">GitHub</a>
+      </footer>
+
+    </div>
+  </div>
+</body>
+</html>
