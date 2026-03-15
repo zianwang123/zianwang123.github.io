@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Causal Sentiment Engine &mdash; Zian Wang</title>
+  <meta name="description" content="3D interactive causal graph with 52 macro nodes and AI-driven sentiment analysis for macro-financial reasoning.">
+  <meta property="og:title" content="Causal Sentiment Engine — Zian Wang">
+  <meta property="og:description" content="3D interactive causal graph with 52 macro nodes and AI-driven sentiment analysis for macro-financial reasoning.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://zianwang123.github.io/projects/causal-sentiment.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Causal Sentiment Engine — Zian Wang">
+  <meta name="twitter:description" content="3D interactive causal graph with 52 macro nodes and AI-driven sentiment analysis for macro-financial reasoning.">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80' font-family='serif'>W</text></svg>">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="content">
+
+      <a href="../" class="back-link">&larr; Back</a>
+
+      <div class="project-header">
+        <h1>Causal Sentiment Engine</h1>
+        <div class="project-meta">
+          <span>Personal project, 2026</span>
+          <span>Built with Claude Code</span>
+          <span><a href="https://github.com/zianwang123/causal-sentiment" target="_blank" rel="noopener">GitHub</a></span>
+        </div>
+      </div>
+
+      <div class="abstract">
+        A full-stack application that models macro-financial interconnectedness as a
+        3D interactive causal graph. 52 macro nodes (rates, commodities, equities, currencies)
+        connected by 117 directed causal edges, with an AI agent that fetches real-time data,
+        analyzes sentiment, and propagates shocks through the network.
+      </div>
+
+      <h2>Origin</h2>
+      <p>
+        Traditional sentiment analysis treats assets in isolation &mdash; one stock, one headline,
+        one data point at a time. But a change in CPI expectations propagates through monetary policy,
+        into interest rates, through credit markets, and into equity indices. Macro investors like
+        Bridgewater model these cascading relationships systematically. This project makes that
+        causal map explicit, visual, and interactive.
+      </p>
+      <p>
+        The idea started with a question: what if you could shock one node &mdash; say, drag oil
+        sentiment to &minus;0.8 &mdash; and watch the cascade ripple through energy, inflation, rates,
+        and equities? Direct hits, indirect effects, inverse beneficiaries, uncorrelated nodes &mdash;
+        all visible in one graph.
+      </p>
+
+      <h2>Architecture</h2>
+
+      <div class="architecture">
+        <div class="arch-flow">
+          <div class="arch-layer">
+            <div class="arch-layer-label">Frontend</div>
+            <div class="arch-layer-content">
+              Next.js 15 + React 19 &rarr; 3D Force-Directed Graph (Three.js/WebGL) &rarr;
+              Node Detail Panel &middot; What-If Simulator &middot; Analyst Annotations &middot; Regime Narrator
+            </div>
+          </div>
+          <div class="arch-arrow">&darr; WebSocket (real-time push)</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Backend &mdash; FastAPI</div>
+            <div class="arch-layer-content">
+              AI Agent (Claude/GPT, 3-phase loop, 11 tools) &rarr;
+              Graph Engine (NetworkX, propagation, anomaly detection, regime classification) &rarr;
+              Data Pipeline (9 scheduled jobs)
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">Data Layer</div>
+            <div class="arch-layer-content">
+              PostgreSQL 16 + TimescaleDB &middot; Redis cache
+            </div>
+          </div>
+          <div class="arch-arrow">&darr;</div>
+          <div class="arch-layer">
+            <div class="arch-layer-label">External Data Sources</div>
+            <div class="arch-layer-content">
+              FRED API (rates, CPI, GDP, spreads) &middot; yfinance (equities, ETFs, forex) &middot;
+              NewsAPI (headlines) &middot; Reddit (social sentiment) &middot; SEC EDGAR (filings)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>AI Agent</h2>
+      <p>
+        The agent runs a three-phase reasoning loop &mdash; Plan, Analyze, Validate &mdash; with
+        self-calibration. It has access to 11 tools for fetching data from FRED, yfinance, news
+        sources, Reddit, and SEC EDGAR. A full 52-node analysis uses 30&ndash;60K tokens per run.
+        The entire orchestrator is ~200 lines in <code>orchestrator.py</code> &mdash; no framework
+        abstractions like LangChain, just direct SDK calls.
+      </p>
+      <p>
+        The provider is switchable at runtime between Claude and GPT. The agent also records
+        falsifiable predictions that the system auto-resolves and tracks for hit rate over time.
+      </p>
+
+      <h2>Key Features</h2>
+
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>What-if shock simulator</td>
+            <td>Drag any node&rsquo;s sentiment, watch cascading impact through the network</td>
+          </tr>
+          <tr>
+            <td>3D causal graph</td>
+            <td>Force-directed WebGL visualization with sentiment coloring and directional particles</td>
+          </tr>
+          <tr>
+            <td>Analyst annotations</td>
+            <td>Pin timestamped notes to nodes, persisted across sessions</td>
+          </tr>
+          <tr>
+            <td>Regime narrator</td>
+            <td>LLM-generated macro narrative from bellwether indicators</td>
+          </tr>
+          <tr>
+            <td>Prediction tracking</td>
+            <td>Agent records falsifiable predictions, auto-resolved with hit rate</td>
+          </tr>
+          <tr>
+            <td>Time travel</td>
+            <td>Replay graph state over the past 7 days</td>
+          </tr>
+          <tr>
+            <td>Portfolio overlay</td>
+            <td>Add positions and see them highlighted on the graph</td>
+          </tr>
+          <tr>
+            <td>Edge discovery</td>
+            <td>AI suggests new causal edges from correlation patterns</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Key Technical Decisions</h2>
+
+      <details class="decision-block">
+        <summary>Why a directed causal graph instead of correlation matrix?</summary>
+        <div class="decision-content">
+          <p>
+            Correlations are symmetric and say nothing about causation direction.
+            A directed graph encodes that Fed policy causes rate changes, not the reverse.
+            This lets shock propagation follow real causal channels rather than
+            statistical associations that break down in regime changes.
+          </p>
+        </div>
+      </details>
+
+      <details class="decision-block">
+        <summary>Why no LangChain?</summary>
+        <div class="decision-content">
+          <p>
+            The agent orchestrator is ~200 lines of direct Anthropic/OpenAI SDK calls.
+            Framework abstractions add indirection that makes debugging harder and
+            limits control over the reasoning loop. The three-phase Plan&ndash;Analyze&ndash;Validate
+            pattern is simple enough to express directly, and switching providers
+            is just swapping the SDK call.
+          </p>
+        </div>
+      </details>
+
+      <details class="decision-block">
+        <summary>Why expert-defined edges + dynamic weight learning?</summary>
+        <div class="decision-content">
+          <p>
+            Pure data-driven edge discovery finds spurious correlations. Pure expert
+            definition misses evolving relationships. The hybrid approach starts with
+            117 expert-defined causal edges, then allows the system to adapt weights
+            and suggest new edges based on observed data &mdash; subject to analyst review.
+          </p>
+        </div>
+      </details>
+
+      <h2>Technology</h2>
+      <ul class="stack-list">
+        <li>Python 3.12</li>
+        <li>FastAPI</li>
+        <li>Next.js 15</li>
+        <li>React 19</li>
+        <li>Three.js / WebGL</li>
+        <li>NetworkX</li>
+        <li>PostgreSQL + TimescaleDB</li>
+        <li>Redis</li>
+        <li>Anthropic SDK</li>
+        <li>OpenAI SDK</li>
+        <li>Zustand</li>
+        <li>Docker Compose</li>
+      </ul>
+
+      <hr>
+      <a href="../" class="back-link">&larr; Back to all projects</a>
+
+    </div>
+  </div>
+</body>
+</html>
