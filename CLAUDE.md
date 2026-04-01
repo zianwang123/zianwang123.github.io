@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## Project Overview
-Personal website for Zian (Andy) Wang — a portfolio/resume site hosted on GitHub Pages at `zianwang123.github.io`.
+Personal website for Zian (Andy) Wang — a portfolio/resume site hosted on GitHub Pages at `spirituslab.github.io`.
 
 ## Design Philosophy
 **Tufte-inspired academic aesthetic** — named after Edward Tufte. Principles:
