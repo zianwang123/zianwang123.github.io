@@ -135,7 +135,7 @@
     // Simulation parameters
     const NUM_PATHS = 150;
     const NUM_STEPS = 200;
-    const MU = 0.0003;
+    const MU = 0.0015;
     const SIGMA = 0.025;
     const PATH_OPACITY = 0.07;
     const PATH_WIDTH = 0.6;
@@ -205,13 +205,13 @@
       }
     }
 
-    // Map normalized price (around 1.0) to canvas Y
-    // Center of canvas = 1.0, spread fills ~70% of height
+    // Map normalized price (around 1.0) to canvas Y using log scale —
+    // correct for GBM (log-normal terminal distribution) and keeps
+    // extreme paths bounded instead of clipping off-canvas.
     function priceToY(price) {
       var centerY = canvasH * 0.5;
-      var scale = canvasH * 0.7;
-      // log scale: deviation from 1.0
-      return centerY - (price - 1.0) * scale;
+      var scale = canvasH * 0.5;
+      return centerY - Math.log(price) * scale;
     }
 
     function draw() {
