@@ -628,6 +628,18 @@ nav a:hover, nav a.active {
   border-bottom: none;
 }
 
+.skill-exposure {
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.skills-legend {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin-top: -0.3rem;
+  margin-bottom: 1rem;
+}
+
 /* ---- Footer ---- */
 
 .site-footer {
