@@ -136,7 +136,7 @@
     const NUM_PATHS = 150;
     const NUM_STEPS = 200;
     const MU = 0.0003;
-    const SIGMA = 0.014;
+    const SIGMA = 0.025;
     const PATH_OPACITY = 0.07;
     const PATH_WIDTH = 0.6;
 
