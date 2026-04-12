@@ -192,6 +192,13 @@ hr {
   margin-bottom: 0;
 }
 
+.about-lead {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.55;
+}
+
 /* ---- Header / Nav ---- */
 
 .site-header {
@@ -389,19 +396,21 @@ nav a:hover, nav a.active {
 
 .project-result {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--color-text);
   background: var(--color-bg-alt);
   border-left: 3px solid var(--color-accent);
-  padding: 0.6rem 0.9rem;
-  margin-bottom: 0.8rem;
+  padding: 0.7rem 0.95rem;
+  margin-bottom: 0.9rem;
   display: inline-block;
 }
 
 .project-stack {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--color-text-tertiary);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 /* ---- Timeline ---- */
@@ -527,46 +536,6 @@ nav a:hover, nav a.active {
   margin-top: 0.5rem;
   padding-left: 1rem;
   border-left: 2px solid var(--color-rule-light);
-}
-
-/* ---- Sidenotes (Tufte-style) ---- */
-
-.sidenote-ref {
-  font-size: 0.7em;
-  vertical-align: super;
-  line-height: 0;
-  color: var(--color-accent);
-  cursor: default;
-}
-
-.sidenote {
-  font-size: 0.78rem;
-  color: var(--color-text-secondary);
-  line-height: 1.45;
-}
-
-/* Desktop: margin placement */
-@media (min-width: 1025px) {
-  .sidenote {
-    float: right;
-    clear: right;
-    margin-right: calc(-1 * var(--margin-width) - var(--gap));
-    width: var(--margin-width);
-    margin-top: 0.2rem;
-    margin-bottom: 1rem;
-    padding: 0;
-    border: none;
-  }
-}
-
-/* Tablet and mobile: inline block */
-@media (max-width: 1024px) {
-  .sidenote {
-    display: block;
-    margin: 0.5rem 0 1rem 0;
-    padding-left: 1rem;
-    border-left: 2px solid var(--color-rule-light);
-  }
 }
 
 /* ---- Skills ---- */
