@@ -224,7 +224,7 @@
     // extreme paths bounded instead of clipping off-canvas.
     function priceToY(price) {
       var centerY = canvasH * 0.5;
-      var scale = canvasH * 0.5;
+      var scale = canvasH * 0.6;
       return centerY - Math.log(price) * scale;
     }
 
