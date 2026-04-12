@@ -253,8 +253,9 @@
         ctx.stroke();
       }
 
-      // Median line — same accent, slightly stronger
-      drawOverlayLine(medianPath, gbmColor, [], 1.5, 0.35, maxStep, xStep);
+      // Median (P50) — long-dashed purple so it reads as a percentile
+      // statistic, distinct from the solid teal realizations.
+      drawOverlayLine(medianPath, gbmColor, [10, 4], 1.3, 0.5, maxStep, xStep);
       // VaR 5% — use the rule/muted color
       drawOverlayLine(var5Path, ruleColor, [5, 4], 1.0, 0.45, maxStep, xStep);
       // CVaR 1%
