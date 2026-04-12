@@ -135,12 +135,14 @@
     // Simulation parameters
     const NUM_PATHS = 150;
     const NUM_STEPS = 200;
-    const MU = 0.0015;
-    const SIGMA = 0.025;
+    // Calibrated to ~8%/yr drift, ~20%/yr vol over 200 steps as one trading year.
+    const MU = 0.0004;
+    const SIGMA = 0.014;
     const PATH_OPACITY = 0.07;
     const PATH_WIDTH = 0.6;
 
     let rawPaths = [];    // normalized price paths (start at 1.0)
+    let highlightedIndices = []; // 2 example paths drawn on top of the fan
     let medianPath = [];
     let var5Path = [];
     let cvar1Path = [];
@@ -187,6 +189,18 @@
         }
         rawPaths.push(path);
       }
+
+      // Pick 2 highlighted paths near the 30th and 70th percentile of
+      // terminal values — typical realizations, not extreme tails.
+      var sortedTerminals = [];
+      for (var i = 0; i < NUM_PATHS; i++) {
+        sortedTerminals.push([rawPaths[i][NUM_STEPS - 1], i]);
+      }
+      sortedTerminals.sort(function (a, b) { return a[0] - b[0]; });
+      highlightedIndices = [
+        sortedTerminals[Math.floor(NUM_PATHS * 0.30)][1],
+        sortedTerminals[Math.floor(NUM_PATHS * 0.70)][1],
+      ];
 
       // Compute percentile paths (normalized)
       medianPath = new Float64Array(NUM_STEPS);
@@ -245,6 +259,22 @@
       drawOverlayLine(var5Path, ruleColor, [5, 4], 1.0, 0.45, maxStep, xStep);
       // CVaR 1%
       drawOverlayLine(cvar1Path, ruleColor, [2, 3], 0.8, 0.35, maxStep, xStep);
+
+      // Highlighted example paths — 2 individual realizations of S_t,
+      // drawn in accent color over the fan.
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = accent;
+      ctx.globalAlpha = 0.8;
+      ctx.setLineDash([]);
+      for (var k = 0; k < highlightedIndices.length; k++) {
+        var hi = highlightedIndices[k];
+        ctx.beginPath();
+        ctx.moveTo(0, priceToY(rawPaths[hi][0]));
+        for (var t = 1; t <= maxStep; t++) {
+          ctx.lineTo(t * xStep, priceToY(rawPaths[hi][t]));
+        }
+        ctx.stroke();
+      }
 
       // Mouse hover: time-slice
       if (mouseX !== null && mouseX >= 0 && mouseX <= canvasW) {
