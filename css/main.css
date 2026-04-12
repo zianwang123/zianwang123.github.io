@@ -157,9 +157,14 @@ hr {
 
 /* ---- GBM Canvas / Hero ---- */
 
-.hero-wrapper {
+.gbm-strip {
   position: relative;
+  width: 100%;
+  height: 240px;
   overflow: hidden;
+  margin: 2.5rem 0 3rem;
+  border-top: 1px solid var(--color-rule-light);
+  border-bottom: 1px solid var(--color-rule-light);
 }
 
 #gbm-canvas {
@@ -168,14 +173,20 @@ hr {
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  z-index: 0;
 }
 
-.hero-wrapper .site-header,
-.hero-wrapper .metrics-strip {
-  position: relative;
-  z-index: 1;
+.gbm-caption {
+  position: absolute;
+  bottom: 0.6rem;
+  right: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  background: var(--color-bg);
+  padding: 0.15rem 0.4rem;
+  border-radius: 2px;
 }
 
 /* ---- About ---- */

@@ -29,52 +29,47 @@
   <div class="page-wrapper">
     <div class="content">
 
-      <!-- Hero area with GBM canvas background -->
-      <div class="hero-wrapper">
-        <canvas id="gbm-canvas" aria-hidden="true"></canvas>
-
-        <!-- Header -->
-        <header class="site-header">
-          <h1>Zian (Andy) Wang</h1>
-          <div class="contact-bar">
-            <a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a>
-            <span class="contact-sep">&middot;</span>
-            <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noopener">LinkedIn</a>
-            <span class="contact-sep">&middot;</span>
-            <a href="https://github.com/spirituslab" target="_blank" rel="noopener">GitHub</a>
-          </div>
-          <nav>
-            <a href="#projects">Projects</a>
-            <a href="#background">Background</a>
-            <a href="#foundations">Mathematical Foundations</a>
-            <a href="#skills">Skills</a>
-          </nav>
-        </header>
-
-        <!-- Metrics Strip -->
-        <div class="metrics-strip" aria-label="Key metrics">
-          <div class="metric">
-            <span class="metric-value" data-target="3.92" data-prefix="" data-suffix="">3.92</span>
-            <span class="metric-label">MFRM &amp; BCom GPA</span>
-          </div>
-          <div class="metric">
-            <span class="metric-value" data-target="170" data-prefix="" data-suffix="">170</span>
-            <span class="metric-label">GRE Quant</span>
-          </div>
-          <div class="metric">
-            <span class="metric-value" data-target="1.81" data-prefix="" data-suffix="">1.81</span>
-            <span class="metric-label">OOS Sharpe</span>
-          </div>
-          <div class="metric">
-            <span class="metric-value" data-target="97.3" data-prefix="" data-suffix="%">97.3%</span>
-            <span class="metric-label">Extraction F1</span>
-          </div>
-          <div class="metric">
-            <span class="metric-value" data-target="8" data-prefix="" data-suffix="h+">8h+</span>
-            <span class="metric-label">Daily Saved</span>
-          </div>
+      <!-- Header -->
+      <header class="site-header">
+        <h1>Zian (Andy) Wang</h1>
+        <div class="contact-bar">
+          <a href="mailto:zianwang123@gmail.com">zianwang123@gmail.com</a>
+          <span class="contact-sep">&middot;</span>
+          <a href="https://www.linkedin.com/in/andyzianwang" target="_blank" rel="noopener">LinkedIn</a>
+          <span class="contact-sep">&middot;</span>
+          <a href="https://github.com/spirituslab" target="_blank" rel="noopener">GitHub</a>
         </div>
-      </div><!-- /.hero-wrapper -->
+        <nav>
+          <a href="#projects">Projects</a>
+          <a href="#background">Background</a>
+          <a href="#foundations">Mathematical Foundations</a>
+          <a href="#skills">Skills</a>
+        </nav>
+      </header>
+
+      <!-- Metrics Strip -->
+      <div class="metrics-strip" aria-label="Key metrics">
+        <div class="metric">
+          <span class="metric-value" data-target="3.92" data-prefix="" data-suffix="">3.92</span>
+          <span class="metric-label">MFRM &amp; BCom GPA</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value" data-target="170" data-prefix="" data-suffix="">170</span>
+          <span class="metric-label">GRE Quant</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value" data-target="1.81" data-prefix="" data-suffix="">1.81</span>
+          <span class="metric-label">OOS Sharpe</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value" data-target="97.3" data-prefix="" data-suffix="%">97.3%</span>
+          <span class="metric-label">Extraction F1</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value" data-target="8" data-prefix="" data-suffix="h+">8h+</span>
+          <span class="metric-label">Daily Saved</span>
+        </div>
+      </div>
 
       <!-- About -->
       <section id="about" class="about-section">
@@ -85,6 +80,12 @@
           Now I'm looking for a graduate program where I can do more of that.
         </p>
       </section>
+
+      <!-- GBM simulation strip — narrative hinge between "who I am" and "what I build" -->
+      <div class="gbm-strip" aria-hidden="true">
+        <canvas id="gbm-canvas"></canvas>
+        <div class="gbm-caption">Geometric Brownian motion &mdash; 150 paths, 8%/yr drift, 20%/yr vol</div>
+      </div>
 
       <!-- Projects -->
       <section id="projects">
