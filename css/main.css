@@ -92,7 +92,7 @@ h1, h2, h3, h4 {
 }
 
 h1 {
-  font-size: 2.4rem;
+  font-size: 2.9rem;
   font-weight: 700;
   margin-bottom: 0.3rem;
 }
@@ -223,15 +223,15 @@ hr {
   margin-top: 0.5rem;
   margin-bottom: 0.8rem;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.76rem;
   letter-spacing: 0.02em;
 }
 
 .contact-bar a {
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, color 0.2s;
 }
 
 .contact-bar a:hover {
@@ -260,12 +260,12 @@ nav {
 
 nav a {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-decoration: none;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   padding: 0.25rem 0;
   border-bottom: 1.5px solid transparent;
   transition: all var(--transition);
